@@ -1,4 +1,6 @@
 import psutil
+
+#Función que comprueba si hay algún proceso ejecutándose en el sistema cuyo nombre es igual al pasado por parámetros
 def checkIfProcessRunning(processName):
     '''
     Check if there is any running process that contains the given name processName.
@@ -11,7 +13,7 @@ def checkIfProcessRunning(processName):
                 return True
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
-    return False;
+    return False
 
 # Check if any chrome process was running or not.
 while True:
@@ -19,5 +21,7 @@ while True:
         print('Un proceso WinRAR desde la linea de comandos se está ejecutando')
     elif checkIfProcessRunning('WinRAR.exe'):
         print('Un proceso WinRAR desde el entorno gráfico se está ejecutando')
+    elif checkIfProcessRunning('7z.exe'):
+        print('Un proceso 7-Zip desde la linea de comandos se está ejecutando')
     else:
-        print('Ningún proceso WinRAR se está ejecutando')
+        print('Ningún proceso comprometido se está ejecutando')
