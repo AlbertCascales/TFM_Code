@@ -53,6 +53,16 @@ def identificador_agente_usuario(agente_usuario):
     else:
         return False
 
+def check_admin():
+    """ Force to start application with admin rights """
+    try:
+        isAdmin = ctypes.windll.shell32.IsUserAnAdmin()
+    except AttributeError:
+        isAdmin = False
+    if not isAdmin:
+        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+
+
 def add_rule(rule_name, file_path):
     """ Add rule to Windows Firewall """
     subprocess.call(
@@ -81,6 +91,7 @@ if __name__ == "__main__":
     # parse arguments
     args = parser.parse_args()
     iface = args.iface
-    add_rule("Bloquear_tráfico", "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
+    check_admin()
+    add_rule("Bloquear_tráfico", "C:\\Users\\marti\\Downloads")
     modify_rule("Bloquear_tráfico", 1)
     definir_interfaz(iface)
