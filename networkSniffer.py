@@ -2,6 +2,8 @@ from scapy.all import *
 from scapy.layers.http import HTTPRequest # import HTTP packet
 import subprocess, ctypes, os, sys
 from subprocess import Popen, DEVNULL
+import tkinter as tk
+from tkinter import messagebox
 
 #Función que define el puerto y la interfaz del adaptador de red del que se obtienen los paquetes de red
 def definir_interfaz(iface=None):
@@ -38,6 +40,17 @@ def extraer_informacion(paquete):
             #print(paquete.show())
             print(f"La máquina con IP origen [%s] ha establecido una conexión por medio del método [%s] y agenete de usuario [%s] a la IP [%s]"
             " cuya URL es [%s].\n" % (ip_origen, metodo, user_agent, ip_destino, dominio+directorio))
+
+            if (cuadro_alerta() == True):
+                print("Transferencia permitida")
+            else:
+                modify_rule("Bloquear_tráfico", 1)
+
+
+
+            #ctypes.windll.user32.MessageBoxW(0, "Un programa está intentando enviar un archivo fuera de tu ordenador. ¿Deseas permitir este intercambio?", "ATENCIÓN!!", 4)
+
+            
 
 
 
@@ -84,6 +97,15 @@ def modify_rule(rule_name, state):
     )
     print(f"Rule {rule_name} {message}")
 
+
+def cuadro_alerta():
+    MsgBox = ctypes.windll.user32.MessageBoxW(None, "Un programa está intentando enviar un archivo fuera de tu ordenador. ¿Deseas permitir este intercambio?", "!!!ATENCIÓN!!!", 1)
+    if MsgBox == 1:
+        return True
+    else:
+        ctypes.windll.user32.MessageBoxW(0, "Transferencia detenida", "Confirmación", 0)
+        return False
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Programa para snifar el tráfico red de la interfaz de red deseada.")
@@ -92,6 +114,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     iface = args.iface
     check_admin()
+    modify_rule("Bloquear_tráfico", 0)
     add_rule("Bloquear_tráfico", "C:\\Users\\marti\\Downloads")
-    modify_rule("Bloquear_tráfico", 1)
     definir_interfaz(iface)
