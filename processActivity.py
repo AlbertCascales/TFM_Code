@@ -1,4 +1,6 @@
 import psutil
+import subprocess
+
 
 #Función que comprueba si hay algún proceso ejecutándose en el sistema cuyo nombre es igual al pasado por parámetros
 def checkIfProcessRunning(processName):
@@ -15,8 +17,14 @@ def checkIfProcessRunning(processName):
             pass
     return False
 
+def guardar_historial_comandos():
+    cmd_history = subprocess.check_output(["doskey", "/history"])
+    with open("saved_commands.txt", "wb") as f:
+        f.write(cmd_history) 
+
 # Check if any chrome process was running or not.
 while True:
+    guardar_historial_comandos()
     if checkIfProcessRunning('Rar.exe'): 
         print('Un proceso WinRAR desde la linea de comandos se está ejecutando')
     elif checkIfProcessRunning('WinRAR.exe'):

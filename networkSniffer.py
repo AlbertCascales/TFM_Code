@@ -114,6 +114,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     iface = args.iface
     check_admin()
-    modify_rule("Bloquear_tráfico", 0)
+    modify_rule("Bloquear_tráfico", 1)
     add_rule("Bloquear_tráfico", "C:\\Users\\marti\\Downloads")
     definir_interfaz(iface)
