@@ -4,6 +4,10 @@ import subprocess, ctypes, os, sys
 from subprocess import Popen, DEVNULL
 import tkinter as tk
 from tkinter import messagebox
+import subprocess
+
+from stopProcessMonitor import stop_process_monitor
+
 
 #Función que define el puerto y la interfaz del adaptador de red del que se obtienen los paquetes de red
 def definir_interfaz(iface=None):
@@ -37,22 +41,20 @@ def extraer_informacion(paquete):
             user_agent = ""
         #Comprobación del tipo de 
         if (identificar_Protocolo(url) == True and identificador_agente_usuario(user_agent) == True):
+            
             #print(paquete.show())
             print(f"La máquina con IP origen [%s] ha establecido una conexión por medio del método [%s] y agenete de usuario [%s] a la IP [%s]"
             " cuya URL es [%s].\n" % (ip_origen, metodo, user_agent, ip_destino, dominio+directorio))
 
-            if (cuadro_alerta() == True):
-                print("Transferencia permitida")
-            else:
-                modify_rule("Bloquear_tráfico", 1)
 
+            stop_process_monitor()
 
+            #if (cuadro_alerta() == True):
+            #    print("Transferencia permitida")
+            #else:
+            #    modify_rule("Bloquear_tráfico", 1)
 
             #ctypes.windll.user32.MessageBoxW(0, "Un programa está intentando enviar un archivo fuera de tu ordenador. ¿Deseas permitir este intercambio?", "ATENCIÓN!!", 4)
-
-            
-
-
 
 def identificar_Protocolo(url):
     if "mega" in url:
@@ -114,6 +116,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     iface = args.iface
     check_admin()
-    modify_rule("Bloquear_tráfico", 1)
-    add_rule("Bloquear_tráfico", "C:\\Users\\marti\\Downloads")
+    #modify_rule("Bloquear_tráfico", 0)
+    #add_rule("Bloquear_tráfico", "C:\\Users\\marti\\Downloads")
     definir_interfaz(iface)

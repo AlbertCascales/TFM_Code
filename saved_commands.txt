@@ -1,9 +1,0 @@
-rclone.exe copy fichero.zip remote:
-history
-doskey /history
-doskey /hisotry
-doskey /history
-cd C:\Users\marti\Documents\UC3M\Master Ingenier¡a Inform tica\Segundo Curso\Primer Cuatrimestre\TFM\TFM_Code
-python processActivity.py
-cd
-python processActivity.py
