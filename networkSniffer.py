@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import messagebox
 import subprocess
 
-from stopProcessMonitor import stop_process_monitor
+from stopProcessMonitor import convertir_a_csv, stop_process_monitor
 
 
 #Función que define el puerto y la interfaz del adaptador de red del que se obtienen los paquetes de red
@@ -48,6 +48,8 @@ def extraer_informacion(paquete):
 
 
             stop_process_monitor()
+
+            convertir_a_csv()
 
             #if (cuadro_alerta() == True):
             #    print("Transferencia permitida")
