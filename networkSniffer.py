@@ -9,6 +9,11 @@ import subprocess
 
 from stopProcessMonitor import convertir_a_csv, stop_process_monitor
 from traffic_blocker import add_rule
+from traffic_allower import remove_rule, volver_a_ejecutar_comando
+from processMonitorParser import procesar_pml
+
+comando = ""
+ubicacion = ""
 
 
 #Función que define el puerto y la interfaz del adaptador de red del que se obtienen los paquetes de red
@@ -45,12 +50,10 @@ def extraer_informacion(paquete):
         if (identificar_Protocolo(url) == True and identificador_agente_usuario(user_agent) == True):
             
             #print(paquete.show())
-            print(f"La máquina con IP origen [%s] ha establecido una conexión por medio del método [%s] y agenete de usuario [%s] a la IP [%s]"
-            " cuya URL es [%s].\n" % (ip_origen, metodo, user_agent, ip_destino, dominio+directorio))
+            #print(f"La máquina con IP origen [%s] ha establecido una conexión por medio del método [%s] y agenete de usuario [%s] a la IP [%s]"
+            #" cuya URL es [%s].\n" % (ip_origen, metodo, user_agent, ip_destino, dominio+directorio))
 
             nombre_regla = "mega_blocker"
-
-            #modify_rule(nombre_regla, 1)
 
             add_rule(nombre_regla, "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
 
@@ -58,10 +61,23 @@ def extraer_informacion(paquete):
 
             convertir_a_csv()
 
-            #if (cuadro_alerta() == True):
-            #    print("Transferencia permitida")
-            #else:
-            #    modify_rule("Bloquear_tráfico", 1)
+            resultado = procesar_pml()
+            variable = resultado.rsplit(' ', 1)
+            comando = variable[0]
+            ubicacion = variable[1]
+
+            if (cuadro_alerta() == True):
+                remove_rule("mega_blocker")
+                volver_a_ejecutar_comando(ubicacion, comando)
+                print("Transferencia permitida")
+            else:
+                print("Transferencia bloqueada")
+
+
+            #Terminar la ejecución del programa
+            sys.exit()
+
+            
 
             #ctypes.windll.user32.MessageBoxW(0, "Un programa está intentando enviar un archivo fuera de tu ordenador. ¿Deseas permitir este intercambio?", "ATENCIÓN!!", 4)
 
@@ -86,20 +102,8 @@ def check_admin():
     if not isAdmin:
         ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
 
-def modify_rule(rule_name, state):
-    """ Enable/Disable specific rule, 0 = Disable / 1 = Enable """
-    state, message = ("yes", "Enabled") if state else ("no", "Disabled")
-    subprocess.call(
-        f"netsh advfirewall firewall set rule name={rule_name} new enable={state}", 
-        shell=True, 
-        stdout=DEVNULL, 
-        stderr=DEVNULL
-    )
-    print(f"Rule {rule_name} {message}")
-
-
 def cuadro_alerta():
-    MsgBox = ctypes.windll.user32.MessageBoxW(None, "Un programa está intentando enviar un archivo fuera de tu ordenador. ¿Deseas permitir este intercambio?", "!!!ATENCIÓN!!!", 1)
+    MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se ha ejecutado el comando: {comando} ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
     if MsgBox == 1:
         return True
     else:
@@ -114,6 +118,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     iface = args.iface
     check_admin()
-    #modify_rule("Bloquear_tráfico", 0)
-    #add_rule("Bloquear_tráfico", "C:\\Users\\marti\\Downloads")
+    remove_rule("mega_blocker")
     definir_interfaz(iface)
