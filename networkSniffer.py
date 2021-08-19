@@ -1,3 +1,4 @@
+from typing import Protocol
 from scapy.all import *
 from scapy.layers.http import HTTPRequest # import HTTP packet
 import subprocess, ctypes, os, sys
@@ -7,6 +8,7 @@ from tkinter import messagebox
 import subprocess
 
 from stopProcessMonitor import convertir_a_csv, stop_process_monitor
+from traffic_blocker import add_rule
 
 
 #Función que define el puerto y la interfaz del adaptador de red del que se obtienen los paquetes de red
@@ -46,6 +48,11 @@ def extraer_informacion(paquete):
             print(f"La máquina con IP origen [%s] ha establecido una conexión por medio del método [%s] y agenete de usuario [%s] a la IP [%s]"
             " cuya URL es [%s].\n" % (ip_origen, metodo, user_agent, ip_destino, dominio+directorio))
 
+            nombre_regla = "mega_blocker"
+
+            #modify_rule(nombre_regla, 1)
+
+            add_rule(nombre_regla, "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
 
             stop_process_monitor()
 
@@ -78,17 +85,6 @@ def check_admin():
         isAdmin = False
     if not isAdmin:
         ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
-
-
-def add_rule(rule_name, file_path):
-    """ Add rule to Windows Firewall """
-    subprocess.call(
-        f"netsh advfirewall firewall add rule name={rule_name} dir=out action=block enable=no program={file_path}", 
-        shell=True, 
-        stdout=DEVNULL, 
-        stderr=DEVNULL
-    )
-    print(f"Rule {rule_name} for {file_path} added")
 
 def modify_rule(rule_name, state):
     """ Enable/Disable specific rule, 0 = Disable / 1 = Enable """

@@ -8,6 +8,3 @@ def convertir_a_csv():
     command = "cd C:\\Users\\marti\\Downloads\\ProcessMonitor & Procmon.exe salida.PML /SaveAs salida.csv"
     subprocess.call(command, shell=True)
 
-if __name__ == "__main__":
-    stop_process_monitor()
-
