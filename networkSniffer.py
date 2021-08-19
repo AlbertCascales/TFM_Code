@@ -69,17 +69,12 @@ def extraer_informacion(paquete):
             if (cuadro_alerta() == True):
                 remove_rule("mega_blocker")
                 volver_a_ejecutar_comando(ubicacion, comando)
-                print("Transferencia permitida")
+                ctypes.windll.user32.MessageBoxW(0, "Transferencia permitida", "Confirmación", 0)
             else:
-                print("Transferencia bloqueada")
-
+                ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
 
             #Terminar la ejecución del programa
             sys.exit()
-
-            
-
-            #ctypes.windll.user32.MessageBoxW(0, "Un programa está intentando enviar un archivo fuera de tu ordenador. ¿Deseas permitir este intercambio?", "ATENCIÓN!!", 4)
 
 def identificar_Protocolo(url):
     if "mega" in url:
