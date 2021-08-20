@@ -14,14 +14,15 @@ from processMonitorParser import procesar_pml
 
 comando = ""
 ubicacion = ""
+nombre_regla = ""
 
 
-#Función que define el puerto y la interfaz del adaptador de red del que se obtienen los paquetes de red
+#Función que define el puerto y la interfaz del adaptador de red que se monitoriza
 def definir_interfaz(iface=None):
     if iface:
         sniff(filter="port 80", prn=extraer_informacion, iface=iface, store=False)
     else:
-        # sniff with default interface
+        # En caso que de que no se defina ninguna interfaz se toma la de por defecto
         sniff(filter="port 80", prn=extraer_informacion, store=False)
 
 #Función que obtiene los datos más relevantes del paquete analizado
@@ -46,48 +47,57 @@ def extraer_informacion(paquete):
             user_agent = paquete[HTTPRequest].User_Agent.decode()
         else:
             user_agent = ""
-        #Comprobación del tipo de 
-        if (identificar_Protocolo(url) == True and identificador_agente_usuario(user_agent) == True):
+        #Comprobación del servicio y agente de usuario que están ejecutándose 
+        if (identificar_Protocolo(url) != False and identificador_agente_usuario(user_agent) != False):
             
-            #print(paquete.show())
-            #print(f"La máquina con IP origen [%s] ha establecido una conexión por medio del método [%s] y agenete de usuario [%s] a la IP [%s]"
-            #" cuya URL es [%s].\n" % (ip_origen, metodo, user_agent, ip_destino, dominio+directorio))
+            #Defino el nombre de la regla para el firewall
+            servicio = identificar_Protocolo(url)
+            nombre_regla = servicio + "_blocker"
 
-            nombre_regla = "mega_blocker"
-
+            #Añado la regla a la lista del firewall
             add_rule(nombre_regla, "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
 
+            #Paro la captura de eventos por parte de Process Monitor
             stop_process_monitor()
 
+            #Transformo el archivo (de pml a csv)
             convertir_a_csv()
 
+            #Obtengo el comando ejecutado y el directorio sobre el que se ha ejecutado 
             resultado = procesar_pml()
             variable = resultado.rsplit(' ', 1)
             comando = variable[0]
             ubicacion = variable[1]
 
-            if (cuadro_alerta() == True):
+            #Alerto al usuario del proceso detectado
+            #Si confirma que lo ha hecho él, deshabilito la regla del firewall y vuelvo a ejecutar el comando
+            #para que se lleve a cabo
+            if (cuadro_alerta(comando) == True):
                 remove_rule("mega_blocker")
                 volver_a_ejecutar_comando(ubicacion, comando)
                 ctypes.windll.user32.MessageBoxW(0, "Transferencia permitida", "Confirmación", 0)
+            #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
             else:
                 ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
 
-            #Terminar la ejecución del programa
+            #Termina la ejecución del programa
             sys.exit()
 
+#Obtengo el servicio accedido en la petición HTTP
 def identificar_Protocolo(url):
     if "mega" in url:
-        return True
+        return "mega"
     else:
         return False
 
+#Obtengo el agente de usuario que ha realizado la petición HTTP
 def identificador_agente_usuario(agente_usuario):
     if "rclone" in agente_usuario:
-        return True
+        return "rclone"
     else:
         return False
 
+#Compruebo que el script se está ejecutando con permisos de administrador (necesario para añadir la regla al firewall)
 def check_admin():
     """ Force to start application with admin rights """
     try:
@@ -97,12 +107,12 @@ def check_admin():
     if not isAdmin:
         ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
 
-def cuadro_alerta():
-    MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se ha ejecutado el comando: {comando} ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
+#Generación de una ventana que alerta al usuario sobre la ejecución del comando
+def cuadro_alerta(terminal):
+    MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se ha ejecutado el comando: " + terminal + " ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
     if MsgBox == 1:
         return True
     else:
-        ctypes.windll.user32.MessageBoxW(0, "Transferencia detenida", "Confirmación", 0)
         return False
 
 if __name__ == "__main__":
@@ -112,6 +122,9 @@ if __name__ == "__main__":
     # parse arguments
     args = parser.parse_args()
     iface = args.iface
+    #Compruebo los permisos de administrador
     check_admin()
+    #Elimino las posibles reglas que hayan
     remove_rule("mega_blocker")
+    #Llamo al capturador de eventos de las interfaces de red
     definir_interfaz(iface)

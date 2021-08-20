@@ -1,18 +1,18 @@
 from csv import reader
-
 from scapy.config import CommandsList
 
+#Procesamiento del fichero csv generado por Process Monitor
 def procesar_pml():
-    # open file in read mode
+    #Abro el fichero en modo lectura
     with open('C:\\Users\\marti\\Downloads\\ProcessMonitor\\salida.csv', 'r', encoding="utf8") as read_obj:
-        # pass the file object to reader() to get the reader object
+        #Obtengo el fichero como un objeto reader
         csv_reader = reader(read_obj)
-        # Iterate over each row in the csv using reader object
+        #Itero por cada una de las filas del fichero
         for row in csv_reader:
-            # row variable is a list that represents a row in csv
+            #Obtengo el nombre del proceso y los detalles de la operación realizada
             nombre = row[1]
-            path = row[4]
             detail = row[6]
+            #Obtengo el comando ejecutado y el directorio sobre el que se ha realizado la operación
             if ("rclone.exe" in nombre and "Command line: rclone.exe" in detail):
                 comando_ejecutado = detail[detail.find('Command'):]
                 comando_ejecutado = comando_ejecutado[comando_ejecutado.find(':'):]
