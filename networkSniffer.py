@@ -1,11 +1,13 @@
 from typing import Protocol
 from scapy.all import *
-from scapy.layers.http import HTTPRequest # import HTTP packet
+from scapy.layers.http import HTTPRequest
 import subprocess, ctypes, os, sys
 from subprocess import Popen, DEVNULL
 import tkinter as tk
 from tkinter import messagebox
 import subprocess
+import argparse
+import sys, os, traceback, types
 
 from stopProcessMonitor import convertir_a_csv, stop_process_monitor
 from traffic_blocker import add_rule
@@ -34,14 +36,6 @@ def extraer_informacion(paquete):
         directorio = paquete[HTTPRequest].Path.decode()
         #Junto el dominio y el directorio para formar la URL
         url = dominio + directorio
-        #Obtener la IP origen del paquete
-        ip_origen = paquete[IP].src
-        #Obtener la IP destino del paquete
-        ip_destino = paquete[IP].dst
-        #Obtener el puerto origen
-        puerto_origen = paquete[IP].sport
-        #Obtener método del paquete
-        metodo = paquete[HTTPRequest].Method.decode()
         #Obtener el User_Agent que está realizando el envío del paquete
         if (paquete[HTTPRequest].User_Agent is not None):
             user_agent = paquete[HTTPRequest].User_Agent.decode()
@@ -98,14 +92,7 @@ def identificador_agente_usuario(agente_usuario):
         return False
 
 #Compruebo que el script se está ejecutando con permisos de administrador (necesario para añadir la regla al firewall)
-def check_admin():
-    """ Force to start application with admin rights """
-    try:
-        isAdmin = ctypes.windll.shell32.IsUserAnAdmin()
-    except AttributeError:
-        isAdmin = False
-    if not isAdmin:
-        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+
 
 #Generación de una ventana que alerta al usuario sobre la ejecución del comando
 def cuadro_alerta(terminal):
@@ -116,14 +103,14 @@ def cuadro_alerta(terminal):
         return False
 
 if __name__ == "__main__":
-    import argparse
+    
     parser = argparse.ArgumentParser(description="Programa para snifar el tráfico red de la interfaz de red deseada.")
     parser.add_argument("-i", "--iface", help="Nombre de la interfaz que se quiere definir")
     # parse arguments
     args = parser.parse_args()
     iface = args.iface
     #Compruebo los permisos de administrador
-    check_admin()
+
     #Elimino las posibles reglas que hayan
     remove_rule("mega_blocker")
     #Llamo al capturador de eventos de las interfaces de red
