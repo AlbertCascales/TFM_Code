@@ -1,6 +1,7 @@
 from typing import Protocol
 from scapy.all import *
 from scapy.layers.http import HTTPRequest
+from scapy.layers import *
 import subprocess, ctypes, os, sys
 from subprocess import Popen, DEVNULL
 import tkinter as tk
@@ -22,10 +23,12 @@ nombre_regla = ""
 #Función que define el puerto y la interfaz del adaptador de red que se monitoriza
 def definir_interfaz(iface=None):
     if iface:
-        sniff(filter="port 80", prn=extraer_informacion, iface=iface, store=False)
+        sniff(filter="", prn=extraer_informacion, iface=iface, store=False)
+        #sniff(filter="port 80", prn=extraer_informacion, iface=iface, store=False)
     else:
         # En caso que de que no se defina ninguna interfaz se toma la de por defecto
-        sniff(filter="port 80", prn=extraer_informacion, store=False)
+        #sniff(filter="port 80", prn=extraer_informacion, store=False)
+        sniff(filter="", prn=extraer_informacion, store=False)
 
 #Función que obtiene los datos más relevantes del paquete analizado
 def extraer_informacion(paquete):
@@ -76,6 +79,10 @@ def extraer_informacion(paquete):
 
             #Termina la ejecución del programa
             sys.exit()
+
+    elif paquete.haslayer(TCP):
+        if paquete[TCP].dport == 21:
+            print(paquete[TCP].decode())
 
 #Obtengo el servicio accedido en la petición HTTP
 def identificar_Protocolo(url):
