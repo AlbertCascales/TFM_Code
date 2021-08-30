@@ -82,7 +82,7 @@ def extraer_informacion(paquete):
 
     elif paquete.haslayer(TCP):
         if paquete[TCP].dport == 21:
-            print(paquete[TCP].decode())
+            print(paquete[TCP])
 
 #Obtengo el servicio accedido en la petición HTTP
 def identificar_Protocolo(url):
