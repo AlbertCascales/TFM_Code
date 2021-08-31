@@ -32,6 +32,7 @@ def definir_interfaz(iface=None):
 
 #Función que obtiene los datos más relevantes del paquete analizado
 def extraer_informacion(paquete):
+    #Si se trata de un establecimiento de conexión por medio del protocolo HTTP
     if paquete.haslayer(HTTPRequest):
         #Obtener el dominio de la pagina web
         dominio = paquete[HTTPRequest].Host.decode()
@@ -60,8 +61,9 @@ def extraer_informacion(paquete):
             #Transformo el archivo (de pml a csv)
             convertir_a_csv()
 
-            #Obtengo el comando ejecutado y el directorio sobre el que se ha ejecutado 
-            resultado = procesar_pml()
+            #Obtengo el comando ejecutado y el directorio sobre el que se ha ejecutado
+            identificador = "mega"
+            resultado = procesar_pml(identificador)
             variable = resultado.rsplit(' ', 1)
             comando = variable[0]
             ubicacion = variable[1]
@@ -69,7 +71,7 @@ def extraer_informacion(paquete):
             #Alerto al usuario del proceso detectado
             #Si confirma que lo ha hecho él, deshabilito la regla del firewall y vuelvo a ejecutar el comando
             #para que se lleve a cabo
-            if (cuadro_alerta(comando) == True):
+            if (cuadro_alerta(comando, identificador) == True):
                 remove_rule("mega_blocker")
                 volver_a_ejecutar_comando(ubicacion, comando)
                 ctypes.windll.user32.MessageBoxW(0, "Transferencia permitida", "Confirmación", 0)
@@ -80,9 +82,37 @@ def extraer_informacion(paquete):
             #Termina la ejecución del programa
             sys.exit()
 
+    #Si se trata de un establecimiento de conexión por medio del protocolo TCP
     elif paquete.haslayer(TCP):
+        #Y ademas el puerto destino es el 21 (FTP)
         if paquete[TCP].dport == 21:
-            print(paquete[TCP])
+
+            ip_destino = paquete[IP].dst
+
+            #Defino el nombre de la regla para el firewall
+            nombre_regla = "ftp_blocker"
+
+            #Añado la regla a la lista del firewall
+            add_rule(nombre_regla, "C:\\Users\\marti\\Downloads\\filezilla\\FileZillaFTPClient\\filezilla.exe")
+
+            #Paro la captura de eventos por parte de Process Monitor
+            stop_process_monitor()
+
+            #Transformo el archivo (de pml a csv)
+            convertir_a_csv()
+
+            #Obtengo el directorio y fichero que se ha intentado transmitir por ftp
+            identificador = "ftp"
+            fichero_a_transferir = procesar_pml(identificador)
+
+            #Alerto al usuario del proceso detectado
+            #Si confirma que lo ha hecho él, deshabilito la regla del firewall y vuelvo a ejecutar el comando
+            #para que se lleve a cabo
+            
+
+
+            
+
 
 #Obtengo el servicio accedido en la petición HTTP
 def identificar_Protocolo(url):
@@ -102,12 +132,16 @@ def identificador_agente_usuario(agente_usuario):
 
 
 #Generación de una ventana que alerta al usuario sobre la ejecución del comando
-def cuadro_alerta(terminal):
-    MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se ha ejecutado el comando: " + terminal + " ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
-    if MsgBox == 1:
-        return True
-    else:
-        return False
+def cuadro_alerta(terminal, identificador):
+    if (identificador == "mega"):
+        MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se ha ejecutado el comando: " + terminal + " ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
+        if MsgBox == 1:
+            return True
+        else:
+            return False
+    elif (identificador == "ftp"):
+        print("Buenas tardes")
+
 
 if __name__ == "__main__":
     
@@ -120,5 +154,6 @@ if __name__ == "__main__":
 
     #Elimino las posibles reglas que hayan
     remove_rule("mega_blocker")
+    remove_rule("ftp_blocker")
     #Llamo al capturador de eventos de las interfaces de red
     definir_interfaz(iface)
