@@ -1,11 +1,12 @@
 from typing import Protocol
+from dpkt.ssl import TLS, TLS12_V, TLSClientHello
 from scapy.all import *
 from scapy.layers.http import HTTPRequest
 from scapy.layers import *
 import subprocess, ctypes, os, sys
 from subprocess import Popen, DEVNULL
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import Frame, messagebox
 import subprocess
 import argparse
 import sys, os, traceback, types
@@ -18,6 +19,8 @@ from processMonitorParser import procesar_pml
 comando = ""
 ubicacion = ""
 nombre_regla = ""
+variableGlobal = ""
+lista = []
 
 
 #Función que define el puerto y la interfaz del adaptador de red que se monitoriza
@@ -32,7 +35,7 @@ def definir_interfaz(iface=None):
 
 #Función que obtiene los datos más relevantes del paquete analizado
 def extraer_informacion(paquete):
-    #Si se trata de un establecimiento de conexión por medio del protocolo HTTP
+
     if paquete.haslayer(HTTPRequest):
         #Obtener el dominio de la pagina web
         dominio = paquete[HTTPRequest].Host.decode()
@@ -106,13 +109,70 @@ def extraer_informacion(paquete):
             fichero_a_transferir = procesar_pml(identificador)
 
             #Alerto al usuario del proceso detectado
-            #Si confirma que lo ha hecho él, deshabilito la regla del firewall y vuelvo a ejecutar el comando
-            #para que se lleve a cabo
-            
+            #Si confirma que lo ha hecho él, vuelvo a solicitarle que introduzca los datos del servidor ftp
+            if (cuadro_alerta(fichero_a_transferir, identificador) == True):
+                cuadro_dialogo_ftp()
+                direccionServidor = lista[0]
+                nombreUsuario = lista[1]
+                contraseñaUsuario = lista[2]
+                print(direccionServidor + " " + nombreUsuario + " "+ contraseñaUsuario)
 
+            #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
+            else:
+                ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
 
-            
+            #Termina la ejecución del programa
+            sys.exit()
 
+def cuadro_dialogo_ftp():
+
+    root= tk.Tk()
+
+    canvas1 = tk.Canvas(root, width = 400, height = 300,  relief = 'raised')
+    canvas1.pack()
+
+    label1 = tk.Label(root, text='Reintroduce los parámetros del servidor')
+    label1.config(font=('helvetica', 14))
+    canvas1.create_window(200, 25, window=label1)
+
+    label2 = tk.Label(root, text='Dirección del servidor FTP:')
+    label2.config(font=('helvetica', 10))
+    canvas1.create_window(200, 75, window=label2)
+
+    entry1 = tk.Entry (root)
+    canvas1.create_window(200, 95, window=entry1)
+
+    label3 = tk.Label(root, text='Username en el servidor FTP:')
+    label3.config(font=('helvetica', 10))
+    canvas1.create_window(200, 125, window=label3)
+
+    entry2 = tk.Entry (root)
+    canvas1.create_window(200, 145, window=entry2)
+
+    label4 = tk.Label(root, text='Password en el servidor FTP:')
+    label4.config(font=('helvetica', 10))
+    canvas1.create_window(200, 175, window=label4)
+
+    entry3 = tk.Entry (root)
+    canvas1.create_window(200, 195, window=entry3)
+
+    def confirmar_parametros():
+        nombreServidor = entry1.get()
+        nombreUsuario = entry2.get()
+        contraseñaUsuario = entry3.get()
+        lista.append(nombreServidor)
+        lista.append(nombreUsuario)
+        lista.append(contraseñaUsuario)
+
+        root.destroy()
+        
+
+    button1 = tk.Button(text='Confirmar', command=confirmar_parametros, bg='brown', fg='white', font=('helvetica', 9, 'bold'))
+    canvas1.create_window(200, 240, window=button1)
+
+    root.mainloop()
+
+    
 
 #Obtengo el servicio accedido en la petición HTTP
 def identificar_Protocolo(url):
@@ -140,7 +200,11 @@ def cuadro_alerta(terminal, identificador):
         else:
             return False
     elif (identificador == "ftp"):
-        print("Buenas tardes")
+        MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se está intentando transferir el fichero: " + terminal + " por FTP, ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
+        if MsgBox == 1:
+            return True
+        else:
+            return False
 
 
 if __name__ == "__main__":
