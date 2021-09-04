@@ -10,6 +10,7 @@ from tkinter import Frame, messagebox
 import subprocess
 import argparse
 import sys, os, traceback, types
+import ftplib
 
 from stopProcessMonitor import convertir_a_csv, stop_process_monitor
 from traffic_blocker import add_rule
@@ -109,13 +110,26 @@ def extraer_informacion(paquete):
             fichero_a_transferir = procesar_pml(identificador)
 
             #Alerto al usuario del proceso detectado
-            #Si confirma que lo ha hecho él, vuelvo a solicitarle que introduzca los datos del servidor ftp
+            #Si confirma que lo ha hecho él, elimino la regla en el firewall y
+            # vuelvo a solicitarle que introduzca los datos del servidor ftp
             if (cuadro_alerta(fichero_a_transferir, identificador) == True):
+
+                #Elimino la regla en el firewall
+                remove_rule("ftp_blocker")
+
+                #Recupero los datos del cliente en el servidor ftp
                 cuadro_dialogo_ftp()
                 direccionServidor = lista[0]
                 nombreUsuario = lista[1]
                 contraseñaUsuario = lista[2]
-                print(direccionServidor + " " + nombreUsuario + " "+ contraseñaUsuario)
+
+                #Establezco una nueva conexión ftp con el servidor
+                with ftplib.FTP(direccionServidor, nombreUsuario, contraseñaUsuario) as ftp:
+                    #Subo el fichero previamente indicado
+                    with open(fichero_a_transferir, 'rb') as file_object:
+                        ftp.storbinary('STOR ficheroSubido.zip', file_object)
+                        #Confirmo al usuario que se ha subido el fichero indicado
+                        ctypes.windll.user32.MessageBoxW(0, "Transferencia permitida", "Confirmación", 0)
 
             #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
             else:
