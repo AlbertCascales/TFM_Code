@@ -1,34 +1,30 @@
 import psutil
 import subprocess
 
-#Función que comprueba si hay algún proceso ejecutándose en el sistema cuyo nombre es igual al pasado por parámetros
+#Función que comprueba si hay algún proceso ejecutándose en el sistema cuyo nombre es igual al pasado como argumento
 def checkIfProcessRunning(processName):
-    '''
-    Check if there is any running process that contains the given name processName.
-    '''
-    #Iterate over the all the running process
     for proc in psutil.process_iter():
         try:
-            # Check if process name contains the given name string.
-            if processName.lower() == proc.name().lower():
-                return True
+            # Compruebo si el proceso analizado tiene el mismo nombre que el pasado como parámetro
+            if (processName.lower() == proc.name().lower()):
+                return 1
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
-    return False
+    return 0
 
-def guardar_historial_comandos():
-    cmd_history = subprocess.check_output(["doskey", "/history"])
-    with open("saved_commands.txt", "wb") as f:
-        f.write(cmd_history) 
+def devolver_proceso_ejecutado():
 
-# Check if any chrome process was running or not.
-while True:
-    guardar_historial_comandos()
-    if checkIfProcessRunning('Rar.exe'): 
-        print('Un proceso WinRAR desde la linea de comandos se está ejecutando')
-    elif checkIfProcessRunning('WinRAR.exe'):
-        print('Un proceso WinRAR desde el entorno gráfico se está ejecutando')
-    elif checkIfProcessRunning('7z.exe'):
-        print('Un proceso 7-Zip desde la linea de comandos se está ejecutando')
-    else:
-        print('Ningún proceso comprometido se está ejecutando')
+    while (checkIfProcessRunning('Rar.exe') != 1 or checkIfProcessRunning('WinRAR.exe') != 1 or checkIfProcessRunning('7z.exe') != 1):
+
+        if checkIfProcessRunning('Rar.exe'): 
+            print('Un proceso WinRAR desde la linea de comandos se está ejecutando')
+            proceso = "rar"
+            return proceso
+        elif checkIfProcessRunning('WinRAR.exe'):
+            print('Un proceso WinRAR desde el entorno gráfico se está ejecutando')
+            proceso = "rar"
+            return proceso
+        elif checkIfProcessRunning('7z.exe'):
+            print('Un proceso 7-Zip desde la linea de comandos se está ejecutando')
+            proceso = "7z"
+            return proceso
