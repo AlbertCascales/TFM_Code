@@ -8,7 +8,7 @@ def procesar_pml(variable):
         #Obtengo el fichero como un objeto reader
         csv_reader = reader(read_obj)
         #Itero por cada una de las filas del fichero
-        if (variable=="mega"):
+        if (variable=="mega" or variable=="dropbox"):
             for row in csv_reader:
                 #Obtengo el nombre del proceso y los detalles de la operación realizada
                 nombre = row[1]
@@ -23,6 +23,7 @@ def procesar_pml(variable):
                     directorio = directorio[directorio.find(':'):]
                     directorio = directorio[2:]
                     directorio = directorio.split(',', 1)[0]
+
                     #print( "La herramienta " + nombre + " ha ejecutado el comando: " + comando_ejecutado + " en el directorio: " + directorio)
                     resultado = comando_ejecutado + " " + directorio
                     return resultado
