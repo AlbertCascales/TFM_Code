@@ -15,6 +15,7 @@ import argparse
 import sys, os, traceback, types
 import ftplib
 import re
+from csv import reader
 
 from stopProcessMonitor import convertir_a_csv, stop_process_monitor
 from traffic_blocker import add_rule
@@ -75,22 +76,13 @@ def extraer_informacion(paquete):
                 convertir_a_csv()
 
                 #Obtengo el comando ejecutado y el directorio sobre el que se ha ejecutado
-                identificador = "mega"
-                resultado = procesar_pml(identificador)
-                variable = resultado.rsplit(' ', 1)
-                comando = variable[0]
-                ubicacion = variable[1]
+                identificadorServicio = "mega"
+                resultado = obtener_comando_y_directorio(identificadorServicio)
+                comandoEjecutado = resultado[0]
+                ubicacionDelEjecutable = resultado[1]
 
                 #Alerto al usuario del proceso detectado
-                #Si confirma que lo ha hecho él, deshabilito la regla del firewall y vuelvo a ejecutar el comando
-                #para que se lleve a cabo
-                if (cuadro_alerta(comando, identificador) == True):
-                    remove_rule("mega_blocker")
-                    volver_a_ejecutar_comando(ubicacion, comando)
-                    ctypes.windll.user32.MessageBoxW(0, "Transferencia permitida", "Confirmación", 0)
-                #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
-                else:
-                    ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
+                alertar_usuario(comandoEjecutado, identificadorServicio, ubicacionDelEjecutable)
 
                 #Termina la ejecución del programa
                 sys.exit()
@@ -111,11 +103,9 @@ def extraer_informacion(paquete):
                             cadena = str(listaTLS)
                             #Si se está intentando acceder a un servicio de dropbox
                             if ("servernames" in cadena and "dropbox" in cadena):
-                                stripped = re.sub(r'^.*?servernames=', '', cadena)
-                                stripped2 = stripped.split(" ", 1)
-                                nameserver = stripped2[0]
-                                nameserver = nameserver[3:]
-                                nameserver = nameserver[:len(nameserver) - 2]
+                                
+                                nombreServidor = nombre_servidor(cadena)
+
 
                                 #Bloqueo el tráfico
                                 add_rule("dropbox_blocker", "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
@@ -127,29 +117,42 @@ def extraer_informacion(paquete):
                                 convertir_a_csv()
 
                                 #Obtengo el comando ejecutado y el directorio sobre el que se ha ejecutado
-                                identificador = "dropbox"
-                                resultado = procesar_pml(identificador)
-                                variable = resultado.rsplit(' ', 1)
-                                comando = variable[0]
-                                ubicacion = variable[1]
+                                identificadorServicio = "dropbox"
+                                resultado = obtener_comando_y_directorio(identificadorServicio)
+                                comandoEjecutado = resultado[0]
+                                ubicacionDelEjecutable = resultado[1]
                                 
 
                                 #Alerto al usuario del proceso detectado
-                                #Si confirma que lo ha hecho él, deshabilito la regla del firewall y vuelvo a ejecutar el comando
-                                #para que se lleve a cabo
-                                if (cuadro_alerta(comando, identificador) == True):
-                                    remove_rule("dropbox_blocker")
-                                    volver_a_ejecutar_comando(ubicacion, comando)
-                                    ctypes.windll.user32.MessageBoxW(0, "Transferencia permitida", "Confirmación", 0)
-                                #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
-                                else:
-                                    ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
+                                alertar_usuario(comandoEjecutado, identificadorServicio, ubicacionDelEjecutable)
 
                                 #Termina la ejecución del programa
                                 sys.exit()
 
+                            elif ("pcloud" in cadena):
+                                #Obtengo el nombre del servidor
+                                nombreServidor = nombre_servidor(cadena)
 
-                                
+                                #Bloqueo el tráfico
+                                add_rule("pcloud_blocker", "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
+
+                                #Paro la captura de eventos por parte de Process Monitor
+                                stop_process_monitor()
+
+                                #Transformo el archivo (de pml a csv)
+                                convertir_a_csv()
+
+                                #Obtengo el comando ejecutado y el directorio sobre el que se ha ejecutado
+                                identificadorServicio = "pcloud"
+                                resultado = obtener_comando_y_directorio(identificadorServicio)
+                                comandoEjecutado = resultado[0]
+                                ubicacionDelEjecutable = resultado[1]
+
+                                #Alerto al usuario del proceso detectado
+                                alertar_usuario(comandoEjecutado, identificadorServicio, ubicacionDelEjecutable)
+
+                                #Termina la ejecución del programa
+                                sys.exit()
 
             #Y ademas el puerto destino es el 21 (FTP)
             elif paquete[TCP].dport == 21:
@@ -207,6 +210,35 @@ def extraer_informacion(paquete):
 
                 #Termina la ejecución del programa
                 sys.exit()
+
+def nombre_servidor(cadena):
+    stripped = re.sub(r'^.*?servernames=', '', cadena)
+    stripped2 = stripped.split(" ", 1)
+    nameserver = stripped2[0]
+    nameserver = nameserver[3:]
+    nameserver = nameserver[:len(nameserver) - 2]
+
+def alertar_usuario(command, identificator, ubication):
+    if (identificator == "pcloud" or identificator =="mega" or identificator =="dropbox"):
+        if (cuadro_alerta(command, identificator) == True):
+            remove_rule("pcloud_blocker")
+            volver_a_ejecutar_comando(ubication, command)
+            ctypes.windll.user32.MessageBoxW(0, "Transferencia permitida", "Confirmación", 0)
+        #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
+        else:
+            ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
+
+        
+def obtener_comando_y_directorio(identificador):
+    listaTemporal = []
+    if identificador == "pcloud" or identificador=="dropbox" or identificador=="mega":
+        resultado = procesar_pml(identificador)
+        variable = resultado.rsplit(' ', 1)
+        comando = variable[0]
+        ubicacion = variable[1]
+        listaTemporal.append(comando)
+        listaTemporal.append(ubicacion)
+        return listaTemporal
 
 
 def cuadro_dialogo_ftp():
@@ -277,20 +309,14 @@ def identificador_agente_usuario(agente_usuario):
 
 
 #Generación de una ventana que alerta al usuario sobre la ejecución del comando
-def cuadro_alerta(terminal, identificador):
-    if (identificador == "mega"):
+def cuadro_alerta(terminal, iden):
+    if (iden == "mega" or iden == "dropbox" or iden == "pcloud"):
         MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se ha ejecutado el comando: " + terminal + " ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
         if MsgBox == 1:
             return True
         else:
             return False
-    if (identificador == "dropbox"):
-        MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se ha ejecutado el comando: " + terminal + " ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
-        if MsgBox == 1:
-            return True
-        else:
-            return False
-    elif (identificador == "ftp"):
+    elif (iden == "ftp"):
         MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se está intentando transferir el fichero: " + terminal + " por FTP, ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
         if MsgBox == 1:
             return True
@@ -312,7 +338,9 @@ if __name__ == "__main__":
     remove_rule("mega_blocker")
     remove_rule("ftp_blocker")
     remove_rule("dropbox_blocker")
+    remove_rule("pcloud_blocker")
     #Sólo comienzo el sniffer de red cuando haya habido un proceso de compresión
     #procesoCompresion = devolver_proceso_ejecutado()
-    #Llamo al capturador de eventos de las interfaces de red
+    #if (procesoCompresion == "rar" or procesoCompresion == "7z"):
+        #Llamo al capturador de eventos de las interfaces de red
     definir_interfaz(iface)
