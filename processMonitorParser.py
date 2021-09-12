@@ -33,8 +33,11 @@ def procesar_pml(variable):
                 nombre = row[1]
                 path = row[4]
 
+                #Devuelvo el tipo de herramienta utilizada y el fichero que se ha intentado transmitir
                 if ("filezilla.exe" in nombre and (".zip" in path or ".rar" in path)):
-                    return path
+                    return "filezilla" + " " + path
+                elif ("WinSCP.exe" in nombre and (".zip" in path or ".rar" in path)):
+                    return "winscp" + " " + path
         elif (variable == "megasync"):
             for row in csv_reader:
                 #Obtengo el nombre del proceso y los detalles de la operación realizada

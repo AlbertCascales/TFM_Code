@@ -157,13 +157,13 @@ def extraer_informacion(paquete):
             #Y ademas el puerto destino es el 21 (FTP)
             elif paquete[TCP].dport == 21:
 
-                ip_destino = paquete[IP].dst
-
                 #Defino el nombre de la regla para el firewall
                 nombre_regla = "ftp_blocker"
 
                 #Añado la regla a la lista del firewall
                 add_rule(nombre_regla, "C:\\Users\\marti\\Downloads\\filezilla\\FileZillaFTPClient\\filezilla.exe")
+                add_rule(nombre_regla, "C:\\Users\\marti\\Downloads\\winscp\\WinSCP\\WinSCP.exe")
+
 
                 #Paro la captura de eventos por parte de Process Monitor
                 stop_process_monitor()
@@ -172,13 +172,15 @@ def extraer_informacion(paquete):
                 convertir_a_csv()
 
                 #Obtengo el directorio y fichero que se ha intentado transmitir por ftp
-                identificador = "ftp"
-                fichero_a_transferir = procesar_pml(identificador)
+                identificadorServicio = "ftp"
+                resultado = obtener_comando_y_directorio(identificadorServicio)
+                herramientaUtilizada = resultado[0]
+                ubicacionDelEjecutable = resultado[1]
 
                 #Alerto al usuario del proceso detectado
                 #Si confirma que lo ha hecho él, elimino la regla en el firewall y
                 # vuelvo a solicitarle que introduzca los datos del servidor ftp
-                if (cuadro_alerta(fichero_a_transferir, identificador) == True):
+                if (cuadro_alerta(ubicacionDelEjecutable, identificadorServicio) == True):
 
                     #Elimino la regla en el firewall
                     remove_rule("ftp_blocker")
@@ -190,19 +192,7 @@ def extraer_informacion(paquete):
                     contraseñaUsuario = listaFTP[2]
 
                     #Establezco una nueva conexión ftp con el servidor
-                    #validezCredenciales = False
-                    #while (validezCredenciales == False):
-                    try:
-                        with ftplib.FTP(direccionServidor, nombreUsuario, contraseñaUsuario) as ftp:
-                            validezCredenciales = True
-                            #Subo el fichero previamente indicado
-                            with open(fichero_a_transferir, 'rb') as file_object:
-                                ftp.storbinary('STOR ficheroSubido.zip', file_object)
-                                #Confirmo al usuario que se ha subido el fichero indicado
-                                ctypes.windll.user32.MessageBoxW(0, "Transferencia permitida", "Confirmación", 0)
-                    except:
-                        print("Datos incorrectos")
-                            #cuadro_dialogo_ftp()
+                    establecer_conexion_servidor_FTP(direccionServidor, nombreUsuario, contraseñaUsuario, ubicacionDelEjecutable)
 
                 #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
                 else:
@@ -210,6 +200,21 @@ def extraer_informacion(paquete):
 
                 #Termina la ejecución del programa
                 sys.exit()
+
+def establecer_conexion_servidor_FTP(direccionServer, nameUser, contraseñaUser, ubicacionFicheroTransmitido):
+    #validezCredenciales = False
+    #while (validezCredenciales == False):
+    try:
+        with ftplib.FTP(direccionServer, nameUser, contraseñaUser) as ftp:
+            #validezCredenciales = True
+            #Subo el fichero previamente indicado
+            with open(ubicacionFicheroTransmitido, 'rb') as file_object:
+                ftp.storbinary('STOR ficheroSubido.zip', file_object)
+                #Confirmo al usuario que se ha subido el fichero indicado
+                ctypes.windll.user32.MessageBoxW(0, "Transferencia permitida", "Confirmación", 0)
+    except:
+        print("Datos incorrectos")
+            #cuadro_dialogo_ftp()
 
 def nombre_servidor(cadena):
     stripped = re.sub(r'^.*?servernames=', '', cadena)
@@ -231,14 +236,14 @@ def alertar_usuario(command, identificator, ubication):
         
 def obtener_comando_y_directorio(identificador):
     listaTemporal = []
-    if identificador == "pcloud" or identificador=="dropbox" or identificador=="mega":
-        resultado = procesar_pml(identificador)
-        variable = resultado.rsplit(' ', 1)
-        comando = variable[0]
-        ubicacion = variable[1]
-        listaTemporal.append(comando)
-        listaTemporal.append(ubicacion)
-        return listaTemporal
+    resultado = procesar_pml(identificador)
+    variable = resultado.rsplit(' ', 1)
+    comando = variable[0]
+    ubicacion = variable[1]
+    listaTemporal.append(comando)
+    listaTemporal.append(ubicacion)
+    return listaTemporal
+
 
 
 def cuadro_dialogo_ftp():
@@ -277,9 +282,9 @@ def cuadro_dialogo_ftp():
         nombreServidor = entry1.get()
         nombreUsuario = entry2.get()
         contraseñaUsuario = entry3.get()
-        lista.append(nombreServidor)
-        lista.append(nombreUsuario)
-        lista.append(contraseñaUsuario)
+        listaFTP.append(nombreServidor)
+        listaFTP.append(nombreUsuario)
+        listaFTP.append(contraseñaUsuario)
 
         root.destroy()
         
