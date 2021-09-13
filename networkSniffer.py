@@ -16,12 +16,15 @@ import sys, os, traceback, types
 import ftplib
 import re
 from csv import reader
+from netaddr import IPNetwork
+
 
 from stopProcessMonitor import convertir_a_csv, stop_process_monitor
 from traffic_blocker import add_rule
 from traffic_allower import remove_rule, volver_a_ejecutar_comando
 from processMonitorParser import procesar_pml
 from processActivity import devolver_proceso_ejecutado
+import ipaddr
 
 comando = ""
 ubicacion = ""
@@ -94,6 +97,9 @@ def extraer_informacion(paquete):
             if paquete[TCP].dport == 443:
                 #Si tiene una capa TLS
                 if (paquete.haslayer(TLS)):
+                    ip_dst = paquete[IP].dst
+                    procesar_direcciones_ip(ip_dst)
+
                     #Si se trata del handshake protocol
                     if (paquete[TLS].type == 22):
                         #Si el mensaje tiene un campo con extensiones
@@ -153,7 +159,7 @@ def extraer_informacion(paquete):
 
                                 #Termina la ejecución del programa
                                 sys.exit()
-
+                            
             #Y ademas el puerto destino es el 21 (FTP)
             elif paquete[TCP].dport == 21:
 
@@ -200,6 +206,17 @@ def extraer_informacion(paquete):
 
                 #Termina la ejecución del programa
                 sys.exit()
+
+def procesar_direcciones_ip(direccionIPDestino):
+    with open("C:\\Users\\marti\\Documents\\UC3M\Master en Ingeniería Informática\\TFM_Code\\direccionesIPMega.txt") as file:
+        while (line := file.readline().rstrip()):
+            #Obtengo la dirección IP con su máscara
+            direccionIP = line
+            mask = ipaddr.IPv4Network(direccionIP)
+
+            print(mask.netmask)
+            
+
 
 def establecer_conexion_servidor_FTP(direccionServer, nameUser, contraseñaUser, ubicacionFicheroTransmitido):
     #validezCredenciales = False
