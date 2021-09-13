@@ -98,6 +98,7 @@ def extraer_informacion(paquete):
                 #Si tiene una capa TLS
                 if (paquete.haslayer(TLS)):
                     ip_dst = paquete[IP].dst
+                    #Es un str
                     procesar_direcciones_ip(ip_dst)
 
                     #Si se trata del handshake protocol
@@ -211,11 +212,16 @@ def procesar_direcciones_ip(direccionIPDestino):
     with open("C:\\Users\\marti\\Documents\\UC3M\Master en Ingeniería Informática\\TFM_Code\\direccionesIPMega.txt") as file:
         while (line := file.readline().rstrip()):
             #Obtengo la dirección IP con su máscara
-            direccionIP = line
-            mask = ipaddr.IPv4Network(direccionIP)
+            direccionIP = ipaddr.IPv4Network(line)
 
-            print(mask.netmask)
-            
+
+            network = IPNetwork('/'.join([format(direccionIP.ip), format(direccionIP.netmask)]))
+            generator = network.iter_hosts()
+
+            for element in generator:
+                #print(type(element))
+                if (direccionIPDestino == format(element)):
+                    print("Coincidencia")
 
 
 def establecer_conexion_servidor_FTP(direccionServer, nameUser, contraseñaUser, ubicacionFicheroTransmitido):
