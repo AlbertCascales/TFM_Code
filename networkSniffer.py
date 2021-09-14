@@ -25,6 +25,7 @@ from traffic_allower import remove_rule, volver_a_ejecutar_comando
 from processMonitorParser import procesar_pml
 from processActivity import devolver_proceso_ejecutado
 import ipaddr
+import time
 
 comando = ""
 ubicacion = ""
@@ -70,7 +71,7 @@ def extraer_informacion(paquete):
                 nombre_regla = servicio + "_blocker"
 
                 #Añado la regla a la lista del firewall
-                add_rule(nombre_regla, "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
+                add_rule("mega_blocker", "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
 
                 #Paro la captura de eventos por parte de Process Monitor
                 stop_process_monitor()
@@ -84,144 +85,182 @@ def extraer_informacion(paquete):
                 comandoEjecutado = resultado[0]
                 ubicacionDelEjecutable = resultado[1]
 
+                nombreServicio = ""
                 #Alerto al usuario del proceso detectado
-                alertar_usuario(comandoEjecutado, identificadorServicio, ubicacionDelEjecutable)
+                alertar_usuario(comandoEjecutado, identificadorServicio, ubicacionDelEjecutable, nombreServicio)
 
                 #Termina la ejecución del programa
                 sys.exit()
 
-        #Si se trata de un establecimiento de conexión por medio del protocolo TCP
-        elif paquete.haslayer(TCP):
+        else:
 
-            #Si el puerto destino es el 443 (TLS)
-            if paquete[TCP].dport == 443:
-                #Si tiene una capa TLS
-                if (paquete.haslayer(TLS)):
-                    ip_dst = paquete[IP].dst
-                    #Es un str
-                    procesar_direcciones_ip(ip_dst)
+            #Si se trata de un establecimiento de conexión por medio del protocolo TCP
+            if paquete.haslayer(TCP):
 
-                    #Si se trata del handshake protocol
-                    if (paquete[TLS].type == 22):
-                        #Si el mensaje tiene un campo con extensiones
-                        if (paquete[TLS].msg is not None):
-                            listaTLS.append(paquete[TLS].msg)
-                            #Convierto la lista en string
-                            cadena = str(listaTLS)
-                            #Si se está intentando acceder a un servicio de dropbox
-                            if ("servernames" in cadena and "dropbox" in cadena):
+                #Si el puerto destino es el 443 (TLS)
+                if paquete[TCP].dport == 443:
+                    #Si tiene una capa TLS
+                    if (paquete.haslayer(TLS)):
                                 
-                                nombreServidor = nombre_servidor(cadena)
+                            #Obtengo la direccion IP destino
+                            ip_dst = paquete[IP].dst
+                            #Compruebo si dicha dirección pertenece a uno de los dominios de MEGA
+                            hayCoincidencia = procesar_direcciones_ip(ip_dst)
 
+                            if (hayCoincidencia == True):
 
-                                #Bloqueo el tráfico
-                                add_rule("dropbox_blocker", "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
+                                #Calculo el timestamp actual
+                                tiempoDeteccionIP = time.time()
+                                #Si el proceso de compresión se ha hecho hace menos de 5 segundos
+                                #Se alerta al usuario sobre una posible fuga de informacion sobre el fichero concreto
+                                if (tiempoDeteccionIP-tiempoProcesoCompresion < 300):
+                                    stop_process_monitor()
+                                    convertir_a_csv()
 
-                                #Paro la captura de eventos por parte de Process Monitor
-                                stop_process_monitor()
+                                    #Obtengo el directorio y fichero que se ha intentado transmitir por ftp
+                                    identificadorServicio = "TLSMegaSync"
+                                    resultado = obtener_comando_y_directorio(identificadorServicio)
+                                    herramientaUtilizada = resultado[0]
+                                    ubicacionDelEjecutable = resultado[1]
+                                    nombreServicio = "MegaSync"
+                                    #Alerto al usuario del proceso detectado
+                                    alertar_usuario(herramientaUtilizada, identificadorServicio, ubicacionDelEjecutable, nombreServicio)
 
-                                #Transformo el archivo (de pml a csv)
-                                convertir_a_csv()
+                                    #Termina el programa
+                                    sys.exit()
 
-                                #Obtengo el comando ejecutado y el directorio sobre el que se ha ejecutado
-                                identificadorServicio = "dropbox"
-                                resultado = obtener_comando_y_directorio(identificadorServicio)
-                                comandoEjecutado = resultado[0]
-                                ubicacionDelEjecutable = resultado[1]
+                            if (hayCoincidencia == False):
                                 
+                                #Si se trata del handshake protocol
+                                if (paquete[TLS].type == 22):
 
-                                #Alerto al usuario del proceso detectado
-                                alertar_usuario(comandoEjecutado, identificadorServicio, ubicacionDelEjecutable)
+                                    #Si el mensaje tiene un campo con extensiones
+                                    if (paquete[TLS].msg is not None):
+                                        listaTLS.append(paquete[TLS].msg)
+                                        #Convierto la lista en string
+                                        cadena = str(listaTLS)
+                                        #Si se está intentando acceder a un servicio de dropbox
+                                        if ("servernames" in cadena and "dropbox" in cadena):
+                                            
+                                            nombreServidor = nombre_servidor(cadena)
 
-                                #Termina la ejecución del programa
-                                sys.exit()
 
-                            elif ("pcloud" in cadena):
-                                #Obtengo el nombre del servidor
-                                nombreServidor = nombre_servidor(cadena)
+                                            #Bloqueo el tráfico
+                                            add_rule("dropbox_blocker", "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
 
-                                #Bloqueo el tráfico
-                                add_rule("pcloud_blocker", "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
+                                            #Paro la captura de eventos por parte de Process Monitor
+                                            stop_process_monitor()
 
-                                #Paro la captura de eventos por parte de Process Monitor
-                                stop_process_monitor()
+                                            #Transformo el archivo (de pml a csv)
+                                            convertir_a_csv()
 
-                                #Transformo el archivo (de pml a csv)
-                                convertir_a_csv()
+                                            #Obtengo el comando ejecutado y el directorio sobre el que se ha ejecutado
+                                            identificadorServicio = "dropbox"
+                                            resultado = obtener_comando_y_directorio(identificadorServicio)
+                                            comandoEjecutado = resultado[0]
+                                            ubicacionDelEjecutable = resultado[1]
+                                            nombreServicio=""
+                                            
 
-                                #Obtengo el comando ejecutado y el directorio sobre el que se ha ejecutado
-                                identificadorServicio = "pcloud"
-                                resultado = obtener_comando_y_directorio(identificadorServicio)
-                                comandoEjecutado = resultado[0]
-                                ubicacionDelEjecutable = resultado[1]
+                                            #Alerto al usuario del proceso detectado
+                                            alertar_usuario(comandoEjecutado, identificadorServicio, ubicacionDelEjecutable, nombreServicio)
 
-                                #Alerto al usuario del proceso detectado
-                                alertar_usuario(comandoEjecutado, identificadorServicio, ubicacionDelEjecutable)
+                                            #Termina la ejecución del programa
+                                            sys.exit()
 
-                                #Termina la ejecución del programa
-                                sys.exit()
+                                        elif ("pcloud" in cadena):
+                                            #Obtengo el nombre del servidor
+                                            nombreServidor = nombre_servidor(cadena)
+
+                                            #Bloqueo el tráfico
+                                            add_rule("pcloud_blocker", "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
+
+                                            #Paro la captura de eventos por parte de Process Monitor
+                                            stop_process_monitor()
+
+                                            #Transformo el archivo (de pml a csv)
+                                            convertir_a_csv()
+
+                                            #Obtengo el comando ejecutado y el directorio sobre el que se ha ejecutado
+                                            identificadorServicio = "pcloud"
+                                            resultado = obtener_comando_y_directorio(identificadorServicio)
+                                            comandoEjecutado = resultado[0]
+                                            ubicacionDelEjecutable = resultado[1]
+                                            nombreServicio=""
+
+                                            #Alerto al usuario del proceso detectado
+                                            alertar_usuario(comandoEjecutado, identificadorServicio, ubicacionDelEjecutable, nombreServicio)
+
+                                            #Termina la ejecución del programa
+                                            sys.exit()
+                                
                             
-            #Y ademas el puerto destino es el 21 (FTP)
-            elif paquete[TCP].dport == 21:
+                            
+                #Y ademas el puerto destino es el 21 (FTP)
+                elif paquete[TCP].dport == 21:
 
-                #Defino el nombre de la regla para el firewall
-                nombre_regla = "ftp_blocker"
+                    #Defino el nombre de la regla para el firewall
+                    nombre_regla = "ftp_blocker"
 
-                #Añado la regla a la lista del firewall
-                add_rule(nombre_regla, "C:\\Users\\marti\\Downloads\\filezilla\\FileZillaFTPClient\\filezilla.exe")
-                add_rule(nombre_regla, "C:\\Users\\marti\\Downloads\\winscp\\WinSCP\\WinSCP.exe")
+                    #Añado la regla a la lista del firewall
+                    add_rule(nombre_regla, "C:\\Users\\marti\\Downloads\\filezilla\\FileZillaFTPClient\\filezilla.exe")
+                    add_rule(nombre_regla, "C:\\Users\\marti\\Downloads\\winscp\\WinSCP\\WinSCP.exe")
 
 
-                #Paro la captura de eventos por parte de Process Monitor
-                stop_process_monitor()
+                    #Paro la captura de eventos por parte de Process Monitor
+                    stop_process_monitor()
 
-                #Transformo el archivo (de pml a csv)
-                convertir_a_csv()
+                    #Transformo el archivo (de pml a csv)
+                    convertir_a_csv()
 
-                #Obtengo el directorio y fichero que se ha intentado transmitir por ftp
-                identificadorServicio = "ftp"
-                resultado = obtener_comando_y_directorio(identificadorServicio)
-                herramientaUtilizada = resultado[0]
-                ubicacionDelEjecutable = resultado[1]
+                    #Obtengo el directorio y fichero que se ha intentado transmitir por ftp
+                    identificadorServicio = "ftp"
+                    resultado = obtener_comando_y_directorio(identificadorServicio)
+                    herramientaUtilizada = resultado[0]
+                    ubicacionDelEjecutable = resultado[1]
 
-                #Alerto al usuario del proceso detectado
-                #Si confirma que lo ha hecho él, elimino la regla en el firewall y
-                # vuelvo a solicitarle que introduzca los datos del servidor ftp
-                if (cuadro_alerta(ubicacionDelEjecutable, identificadorServicio) == True):
+                    #Alerto al usuario del proceso detectado
+                    #Si confirma que lo ha hecho él, elimino la regla en el firewall y
+                    # vuelvo a solicitarle que introduzca los datos del servidor ftp
+                    if (cuadro_alerta(ubicacionDelEjecutable, identificadorServicio, herramientaUtilizada) == True):
 
-                    #Elimino la regla en el firewall
-                    remove_rule("ftp_blocker")
+                        #Elimino la regla en el firewall
+                        remove_rule("ftp_blocker")
 
-                    #Recupero los datos del cliente en el servidor ftp
-                    cuadro_dialogo_ftp()
-                    direccionServidor = listaFTP[0]
-                    nombreUsuario = listaFTP[1]
-                    contraseñaUsuario = listaFTP[2]
+                        #Recupero los datos del cliente en el servidor ftp
+                        cuadro_dialogo_ftp()
+                        direccionServidor = listaFTP[0]
+                        nombreUsuario = listaFTP[1]
+                        contraseñaUsuario = listaFTP[2]
 
-                    #Establezco una nueva conexión ftp con el servidor
-                    establecer_conexion_servidor_FTP(direccionServidor, nombreUsuario, contraseñaUsuario, ubicacionDelEjecutable)
+                        #Establezco una nueva conexión ftp con el servidor
+                        establecer_conexion_servidor_FTP(direccionServidor, nombreUsuario, contraseñaUsuario, ubicacionDelEjecutable)
 
-                #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
-                else:
-                    ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
+                    #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
+                    else:
+                        ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
 
-                #Termina la ejecución del programa
-                sys.exit()
+                    #Termina la ejecución del programa
+                    sys.exit()
 
 def procesar_direcciones_ip(direccionIPDestino):
+    #Leo el fichero con las direcciones IP de los servidores de mega
     with open("C:\\Users\\marti\\Documents\\UC3M\Master en Ingeniería Informática\\TFM_Code\\direccionesIPMega.txt") as file:
         while (line := file.readline().rstrip()):
             #Obtengo la dirección IP con su máscara
             direccionIP = ipaddr.IPv4Network(line)
 
-
+            #Obtengo el rango completo de direcciones IP
             network = IPNetwork('/'.join([format(direccionIP.ip), format(direccionIP.netmask)]))
             generator = network.iter_hosts()
 
             for element in generator:
-                #print(type(element))
+                #Compruebo si la direccion destino del paquete es una de las direcciones de MEGA
                 if (direccionIPDestino == format(element)):
-                    print("Coincidencia")
+                    return True
+
+    return False
+                    
 
 
 def establecer_conexion_servidor_FTP(direccionServer, nameUser, contraseñaUser, ubicacionFicheroTransmitido):
@@ -246,17 +285,23 @@ def nombre_servidor(cadena):
     nameserver = nameserver[3:]
     nameserver = nameserver[:len(nameserver) - 2]
 
-def alertar_usuario(command, identificator, ubication):
+def alertar_usuario(command, identificator, ubication, nombreServicio):
     if (identificator == "pcloud" or identificator =="mega" or identificator =="dropbox"):
-        if (cuadro_alerta(command, identificator) == True):
-            remove_rule("pcloud_blocker")
+        if (cuadro_alerta(command, identificator, nombreServicio) == True):
+            remove_rule(identificator+"_blocker")
             volver_a_ejecutar_comando(ubication, command)
             ctypes.windll.user32.MessageBoxW(0, "Transferencia permitida", "Confirmación", 0)
         #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
         else:
             ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
 
-        
+    elif (identificator == "TLSMegaSync"):
+        cuadro_alerta_megaSync(ubication, nombreServicio)
+
+def cuadro_alerta_megaSync(ubi, nombreServicio):
+    ctypes.windll.user32.MessageBoxW(None, "Se ha transferido el fichero: " + ubi + " a través de " + nombreServicio + " , ten cuidado porque se puede estar provocando una fuga de información", "!!!ATENCIÓN!!!", 1)
+
+
 def obtener_comando_y_directorio(identificador):
     listaTemporal = []
     resultado = procesar_pml(identificador)
@@ -337,15 +382,15 @@ def identificador_agente_usuario(agente_usuario):
 
 
 #Generación de una ventana que alerta al usuario sobre la ejecución del comando
-def cuadro_alerta(terminal, iden):
+def cuadro_alerta(terminal, iden, nombreServicio):
     if (iden == "mega" or iden == "dropbox" or iden == "pcloud"):
-        MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se ha ejecutado el comando: " + terminal + " ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
+        MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se ha ejecutado el comando: " + terminal + " sobre un servidor de " + iden +" ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
         if MsgBox == 1:
             return True
         else:
             return False
     elif (iden == "ftp"):
-        MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se está intentando transferir el fichero: " + terminal + " por FTP, ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
+        MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se está intentando transferir el fichero: " + terminal + " por FTP a través del programa " + nombreServicio +", ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
         if MsgBox == 1:
             return True
         else:
@@ -370,5 +415,6 @@ if __name__ == "__main__":
     #Sólo comienzo el sniffer de red cuando haya habido un proceso de compresión
     #procesoCompresion = devolver_proceso_ejecutado()
     #if (procesoCompresion == "rar" or procesoCompresion == "7z"):
+    tiempoProcesoCompresion = time.time()
         #Llamo al capturador de eventos de las interfaces de red
     definir_interfaz(iface)
