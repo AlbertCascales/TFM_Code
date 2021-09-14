@@ -10,7 +10,6 @@ import subprocess, ctypes, os, sys
 from subprocess import Popen, DEVNULL
 import tkinter as tk
 from tkinter import Frame, messagebox
-import subprocess
 import argparse
 import sys, os, traceback, types
 import ftplib
@@ -209,8 +208,10 @@ def extraer_informacion(paquete):
                 contraseñaUsuario = listaFTP[2]
 
                 #Establezco una nueva conexión ftp con el servidor
-                establecer_conexion_servidor_FTP(direccionServidor, nombreUsuario, contraseñaUsuario, ubicacionDelEjecutable)
-
+                try:
+                    establecer_conexion_servidor_FTP(direccionServidor, nombreUsuario, contraseñaUsuario, ubicacionDelEjecutable)
+                except:
+                    cuadro_dialogo_ftp()
             #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
             else:
                 ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
@@ -241,7 +242,6 @@ def extraer_informacion(paquete):
                     identificadorServicio = "TLSMegaSync"
                     resultado = obtener_comando_y_directorio(identificadorServicio)
                     herramientaUtilizada = resultado[0]
-                    print(herramientaUtilizada)
                     ubicacionDelEjecutable = resultado[1]
                     nombreServicio = "MegaSync"
                     #Alerto al usuario del proceso detectado
@@ -274,17 +274,18 @@ def procesar_direcciones_ip(direccionIPDestino):
 def establecer_conexion_servidor_FTP(direccionServer, nameUser, contraseñaUser, ubicacionFicheroTransmitido):
     #validezCredenciales = False
     #while (validezCredenciales == False):
-    try:
-        with ftplib.FTP(direccionServer, nameUser, contraseñaUser) as ftp:
-            #validezCredenciales = True
-            #Subo el fichero previamente indicado
-            with open(ubicacionFicheroTransmitido, 'rb') as file_object:
-                ftp.storbinary('STOR ficheroSubido.zip', file_object)
-                #Confirmo al usuario que se ha subido el fichero indicado
-                ctypes.windll.user32.MessageBoxW(0, "Transferencia permitida", "Confirmación", 0)
-    except:
-        print("Datos incorrectos")
-            #cuadro_dialogo_ftp()
+        #try:
+            with ftplib.FTP(direccionServer, nameUser, contraseñaUser) as ftp:
+                validezCredenciales = True
+                #Subo el fichero previamente indicado
+                with open(ubicacionFicheroTransmitido, 'rb') as file_object:
+                    ftp.storbinary('STOR ficheroSubido.zip', file_object)
+                    #Confirmo al usuario que se ha subido el fichero indicado
+                    ctypes.windll.user32.MessageBoxW(0, "Transferencia permitida", "Confirmación", 0)
+
+        #except:
+            #print("Datos incorrectos")
+                #cuadro_dialogo_ftp()
 
 def nombre_servidor(cadena):
     stripped = re.sub(r'^.*?servernames=', '', cadena)
