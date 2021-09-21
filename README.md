@@ -13,3 +13,7 @@ El modo de funcionamiento básico del programa es el siguiente:
 * Una vez que se encuentra una coincidencia, lo primero que se realiza es el bloqueo del tráfico detectado mediante la introducción de una nueva regla en el firewall. Posteriormente se alerta al usuario sobre el patrón reconocido.
 
 * En este punto el usuario puede permitir la transferencia ya que se trata de una comunicación realizada por el, o continuar bloqueándola por no conocer su origen. En el caso de que se desee permitir la transferencia, se borra la entrada en la tabla del firewall, y se vuelve a ejecutar el programa que ha generado la alerta. Si no se reconoce el orgien, la regla se deja en el firewall, impidiendo futuras transferencias.
+
+# Modo de ejecución
+
+El comando necesario para ejecutar el programa es:
