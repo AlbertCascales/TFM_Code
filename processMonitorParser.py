@@ -8,7 +8,7 @@ def procesar_pml(variable):
         #Obtengo el fichero como un objeto reader
         csv_reader = reader(read_obj)
         #Itero por cada una de las filas del fichero
-        if (variable=="mega" or variable=="dropbox"):
+        if (variable=="mega" or variable=="dropbox" or variable == "pcloud"):
             for row in csv_reader:
                 #Obtengo el nombre del proceso y los detalles de la operación realizada
                 nombre = row[1]
@@ -33,5 +33,18 @@ def procesar_pml(variable):
                 nombre = row[1]
                 path = row[4]
 
+                #Devuelvo el tipo de herramienta utilizada y el fichero que se ha intentado transmitir
                 if ("filezilla.exe" in nombre and (".zip" in path or ".rar" in path)):
-                    return path
+                    return "filezilla" + " " + path
+                elif ("WinSCP.exe" in nombre and (".zip" in path or ".rar" in path)):
+                    return "winscp" + " " + path
+                
+        elif (variable == "TLSMegaSync"):
+            for row in csv_reader:
+                #Obtengo el nombre del proceso y los detalles de la operación realizada
+                nombre = row[1]
+                path = row[4]
+
+                #Devuelvo el tipo de herramienta utilizada y el fichero que se ha intentado transmitir
+                if ("MEGAsync.exe" in nombre and (".zip" in path or ".rar" in path)):
+                    return "megasync" + " " + path

@@ -1,0 +1,16 @@
+Se ha bloqueado el comando 'rclone.exe  copy fichero.zip remote:' sobre un servidor de mega
+   Posible técnica utilizada por los ransomwares: Revil, Darkside y Conti
+Se ha bloqueado el comando 'rclone.exe  copy fichero.zip remoteDropbox:' sobre un servidor de dropbox
+   Posible técnica utilizada por el ransomwares Revil
+Se ha bloqueado la transferencia FTP al servidor 'filezilla' 
+   Posible técnica utilizada por el ransomware REvil
+Se ha bloqueado la transferencia FTP del fichero C:\Users\marti\Downloads\rclone-v1.56.0-windows-amd64\rclone-v1.56.0-windows-amd64\fichero.zip al servidor 'filezilla' 
+   Posible técnica utilizada por el ransomware REvil
+Se ha bloqueado la transferencia FTP del fichero C:\Users\marti\Downloads\rclone-v1.56.0-windows-amd64\rclone-v1.56.0-windows-amd64\fichero.zip al servidor 'winscp' 
+   Posible técnica utilizada por el ransomware REvil
+Se ha bloqueado la transferencia FTP del fichero C:\Users\marti\Downloads\rclone-v1.56.0-windows-amd64\rclone-v1.56.0-windows-amd64\fichero.zip por medio de la herramienta 'winscp' 
+   Posible técnica utilizada por el ransomware REvil
+Se ha bloqueado la transferencia FTP del fichero C:\Users\marti\Downloads\rclone-v1.56.0-windows-amd64\rclone-v1.56.0-windows-amd64\fichero.zip por medio de la herramienta 'winscp' 
+   Posible técnica utilizada por el ransomware REvil
+Se ha transferido el fichero: C:\Users\marti\Downloads\rclone-v1.56.0-windows-amd64\rclone-v1.56.0-windows-amd64\fichero.zip a través de MegaSync
+   Posible técnica utilizada por los ransomwares: Babuk, Nemty y Avaddon
