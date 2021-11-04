@@ -149,6 +149,11 @@ def extraer_informacion(paquete):
                                 sys.exit()
 
 
+                            elif ("sync" in cadena):
+                                
+
+                                print(cadena)
+
                                 
 
             #Y ademas el puerto destino es el 21 (FTP)
@@ -312,6 +317,8 @@ if __name__ == "__main__":
     remove_rule("mega_blocker")
     remove_rule("ftp_blocker")
     remove_rule("dropbox_blocker")
+    remove_rule("megasync_blocker")
+
     #Sólo comienzo el sniffer de red cuando haya habido un proceso de compresión
     #procesoCompresion = devolver_proceso_ejecutado()
     #Llamo al capturador de eventos de las interfaces de red

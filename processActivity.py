@@ -1,5 +1,5 @@
 import psutil
-import subprocess
+#import subprocess
 
 #Función que comprueba si hay algún proceso ejecutándose en el sistema cuyo nombre es igual al pasado como argumento
 def checkIfProcessRunning(processName):
