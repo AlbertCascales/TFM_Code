@@ -37,7 +37,7 @@ procesoCompresion = ""
 
 
 
-#Función que define el puerto y la interfaz del adaptador de red que se monitoriza
+#Función que define la interfaz del adaptador de red que se monitoriza
 def definir_interfaz(iface=None):
     if iface:
         sniff(filter="", prn=extraer_informacion, iface=iface, store=False)
@@ -63,11 +63,16 @@ def extraer_informacion(paquete):
             user_agent = paquete[HTTPRequest].User_Agent.decode()
         else:
             user_agent = ""
-        #Comprobación del servicio y agente de usuario que están ejecutándose 
-        if (identificar_Protocolo(url) != False and identificador_agente_usuario(user_agent) != False):
+        #Comprobación del servicio y agente de usuario que están ejecutándose
+
+        #rclone + mega
+        #REVIL
+        #DARKSIDE
+        #CONTI
+        if (identificar_Protocolo_mega(url) != False and identificador_agente_usuario_rclone(user_agent) != False):
             
             #Defino el nombre de la regla para el firewall
-            servicio = identificar_Protocolo(url)
+            servicio = identificar_Protocolo_mega(url)
             nombre_regla = servicio + "_blocker"
 
             #Añado la regla a la lista del firewall
@@ -88,6 +93,9 @@ def extraer_informacion(paquete):
             nombreServicio = ""
             #Alerto al usuario del proceso detectado
             alertar_usuario(comandoEjecutado, identificadorServicio, ubicacionDelEjecutable, nombreServicio)
+
+            
+
 
             entradaMegaSync = 0
 
@@ -110,6 +118,10 @@ def extraer_informacion(paquete):
                         #Convierto la lista en string
                         cadena = str(listaTLS)
                         #Si se está intentando acceder a un servicio de dropbox
+
+                        #POR AQUI
+                        #rclone + dropbox
+                        #REVIL
                         if ("servernames" in cadena and "dropbox" in cadena):
                             
                             nombreServidor = nombre_servidor(cadena)
@@ -140,6 +152,9 @@ def extraer_informacion(paquete):
                             #Termina la ejecución del programa
                             sys.exit()
 
+                        #smb + pcloud
+                        #REVISAR
+                        #DARKSIDE
                         elif ("pcloud" in cadena):
                             #Obtengo el nombre del servidor
                             nombreServidor = nombre_servidor(cadena)
@@ -169,7 +184,8 @@ def extraer_informacion(paquete):
                             sys.exit()
                 
             
-                    
+        #FTP + filezilla (REVIL)
+        #ftp + winscp (MAZE)
         #Y ademas el puerto destino es el 21 (FTP)
         elif paquete[TCP].dport == 21:
 
@@ -196,7 +212,7 @@ def extraer_informacion(paquete):
             #Alerto al usuario del proceso detectado
             #Si confirma que lo ha hecho él, elimino la regla en el firewall y
             # vuelvo a solicitarle que introduzca los datos del servidor ftp
-            if (cuadro_alerta(ubicacionDelEjecutable, identificadorServicio, herramientaUtilizada) == True):
+            if (cuadro_alerta_mega(ubicacionDelEjecutable, identificadorServicio, herramientaUtilizada) == True):
 
                 #Elimino la regla en el firewall
                 remove_rule("ftp_blocker")
@@ -295,11 +311,57 @@ def nombre_servidor(cadena):
     nameserver = nameserver[:len(nameserver) - 2]
 
 def alertar_usuario(command, identificator, ubication, nombreServicio):
-    if (identificator == "pcloud" or identificator =="mega" or identificator =="dropbox"):
+    if (identificator =="mega"):
+        if (cuadro_alerta_mega(command, identificator) == True):
+            remove_rule(identificator+"_blocker")
+            volver_a_ejecutar_comando(ubication, command)
+            ctypes.windll.user32.MessageBoxW(0, "Transferencia permitida", "Confirmación", 0)
+
+            #Guardo la alerta en un registro para futuros logs
+            f = open("logsRansowmare.txt", "a")
+            f.write("Se ha permitido el comando '" + command + "' sobre un servidor de " + identificator + "\n")
+            f.write("   Posible técnica utilizada por los ransomwares: Revil, Darkside y Conti" + "\n")
+            f.close()
+
+        #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
+        else:
+            ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
+            f = open("logsRansowmare.txt", "a")
+            f.write("Se ha bloqueado el comando '" + command + "' sobre un servidor de " + identificator + "\n")
+            f.write("   Posible técnica utilizada por los ransomwares: Revil, Darkside y Conti" + "\n")
+            f.close()
+
+    elif (identificator =="dropbox"):
+        if (cuadro_alerta_dropbox(command, identificator) == True):
+            remove_rule(identificator + "_blocker")
+            volver_a_ejecutar_comando(ubication, command)
+            ctypes.windll.user32.MessageBoxW(0, "Transferencia permitida", "Confirmación", 0)
+
+            #Guardo la alerta en un registro para futuros logs
+            f = open("logsRansowmare.txt", "a")
+            f.write("" + "Se ha permitido el comando '" + command + "' sobre un servidor de " + identificator + "\n")
+            f.write("   Posible técnica utilizada por el ransomware Revil" + "\n")
+            f.close()
+
+        #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
+        else:
+            ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
+            f = open("logsRansowmare.txt", "a")
+            f.write("Se ha bloqueado el comando '" + command + "' sobre un servidor de " + identificator + "\n")
+            f.write("   Posible técnica utilizada por el ransomwares Revil" + "\n")
+            f.close()
+
+    elif (identificator == "pcloud" or identificator =="dropbox"):
         if (cuadro_alerta(command, identificator, nombreServicio) == True):
             remove_rule(identificator+"_blocker")
             volver_a_ejecutar_comando(ubication, command)
             ctypes.windll.user32.MessageBoxW(0, "Transferencia permitida", "Confirmación", 0)
+
+            #Guardo la alerta en un registro para futuros logs
+            f = open("logsRansowmare.txt", "a")
+            f.write("" + "Se ha permitido el comando '" + command + "' sobre un servidor de " + identificator + "\n")
+            f.close()
+
         #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
         else:
             ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
@@ -374,14 +436,14 @@ def cuadro_dialogo_ftp():
     
 
 #Obtengo el servicio accedido en la petición HTTP
-def identificar_Protocolo(url):
+def identificar_Protocolo_mega(url):
     if "mega" in url:
         return "mega"
     else:
         return False
 
 #Obtengo el agente de usuario que ha realizado la petición HTTP
-def identificador_agente_usuario(agente_usuario):
+def identificador_agente_usuario_rclone(agente_usuario):
     if "rclone" in agente_usuario:
         return "rclone"
     else:
@@ -391,6 +453,22 @@ def identificador_agente_usuario(agente_usuario):
 
 
 #Generación de una ventana que alerta al usuario sobre la ejecución del comando
+def cuadro_alerta_mega(terminal, iden):
+        MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se ha ejecutado el comando: " + terminal + " sobre un servidor de " + iden +" ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
+        if MsgBox == 1:
+            return True
+        else:
+            return False
+
+#Generación de una ventana que alerta al usuario sobre la ejecución del comando
+def cuadro_alerta_dropbox(terminal, iden):
+        MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se ha ejecutado el comando: " + terminal + " sobre un servidor de " + iden +" ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
+        if MsgBox == 1:
+            return True
+        else:
+            return False
+
+#Generación de una ventana que alerta al usuario sobre la ejecución del comando
 def cuadro_alerta(terminal, iden, nombreServicio):
     if (iden == "mega" or iden == "dropbox" or iden == "pcloud"):
         MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se ha ejecutado el comando: " + terminal + " sobre un servidor de " + iden +" ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
@@ -398,6 +476,7 @@ def cuadro_alerta(terminal, iden, nombreServicio):
             return True
         else:
             return False
+            
     elif (iden == "ftp"):
         MsgBox = ctypes.windll.user32.MessageBoxW(None, "Se está intentando transferir el fichero: " + terminal + " por FTP a través del programa " + nombreServicio +", ¿Deseas permitirlo?", "!!!ATENCIÓN!!!", 1)
         if MsgBox == 1:
