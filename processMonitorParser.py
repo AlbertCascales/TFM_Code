@@ -36,7 +36,7 @@ def procesar_pml(variable):
                 #Devuelvo el tipo de herramienta utilizada y el fichero que se ha intentado transmitir
                 if ("filezilla.exe" in nombre and (".zip" in path or ".rar" in path)):
                     return "filezilla" + " " + path
-                elif ("WinSCP.exe" in nombre and (".zip" in path or ".rar" in path)):
+                elif ("WinSCP.exe" in nombre and (".7z" in path)):
                     return "winscp" + " " + path
                 
         elif (variable == "TLSMegaSync"):
@@ -46,5 +46,5 @@ def procesar_pml(variable):
                 path = row[4]
 
                 #Devuelvo el tipo de herramienta utilizada y el fichero que se ha intentado transmitir
-                if ("MEGAsync.exe" in nombre and (".zip" in path or ".rar" in path)):
+                if ("MEGAsync.exe" in nombre and (".zip" in path or ".rar" in path or ".7z" in path)):
                     return "megasync" + " " + path
