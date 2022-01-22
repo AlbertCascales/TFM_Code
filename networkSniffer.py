@@ -16,7 +16,7 @@ import ftplib
 import re
 from csv import reader
 from netaddr import IPNetwork
-import datetime
+from datetime import datetime
 
 
 from stopProcessMonitor import convertir_a_csv, stop_process_monitor
@@ -61,11 +61,11 @@ def extraer_informacion(paquete):
             user_agent = paquete[HTTPRequest].User_Agent.decode()
         else:
             user_agent = ""
-        #Comprobación del servicio y agente de usuario que están ejecutándose
 
         #rclone + mega
         #DARKSIDE
         #CONTI
+        #Comprobación del servicio y agente de usuario que están ejecutándose
         if (identificar_Protocolo_mega(url) != False and identificador_agente_usuario_rclone(user_agent) != False):
 
             #Defino el nombre de la regla para el firewall
@@ -217,8 +217,11 @@ def extraer_informacion(paquete):
                     try:
                         establecer_conexion_servidor_FTP(direccionServidor, nombreUsuario, contraseñaUsuario, ubicacionDelEjecutable)
                         f = open("logsRansowmare.txt", "a")
-                        f.write("Se ha permitido la transferencia FTP al servidor '" + direccionServidor + "' \n")
-                        f.write("   Posible tecnica utilizada por el ransomware REvil" + "\n")
+                        now = datetime.now()
+                        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+                        f.write(dt_string + "\n")
+                        f.write("   Se ha permitido la transferencia FTP al servidor '" + direccionServidor + "' \n")
+                        f.write("       Posible tecnica utilizada por el ransomware REvil" + "\n")
                         f.close()
                     except:
                         cuadro_dialogo_ftp()
@@ -226,8 +229,11 @@ def extraer_informacion(paquete):
                 else:
                     ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
                     f = open("logsRansowmare.txt", "a")
-                    f.write("Se ha bloqueado la transferencia FTP del fichero " + ubicacionDelEjecutable +" por medio de la herramienta '" + herramientaUtilizada + "' \n")
-                    f.write("   Posible tecnica utilizada por el ransomware REvil" + "\n")
+                    now = datetime.now()
+                    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+                    f.write(dt_string + "\n")
+                    f.write("   Se ha bloqueado la transferencia FTP del fichero " + ubicacionDelEjecutable +" por medio de la herramienta '" + herramientaUtilizada + "' \n")
+                    f.write("       Posible tecnica utilizada por el ransomware REvil" + "\n")
                     f.close()
 
                 entradaMegaSync = 0
@@ -258,8 +264,11 @@ def extraer_informacion(paquete):
                         try:
                             establecer_conexion_servidor_FTP(direccionServidor, nombreUsuario, contraseñaUsuario, ubicacionDelEjecutable)
                             f = open("logsRansowmare.txt", "a")
-                            f.write("Se ha permitido la transferencia FTP al servidor '" + direccionServidor + "' \n")
-                            f.write("   Posible tecnica utilizada por el ransomware REvil" + "\n")
+                            now = datetime.now()
+                            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+                            f.write(dt_string + "\n")
+                            f.write("   Se ha permitido la transferencia FTP al servidor '" + direccionServidor + "' \n")
+                            f.write("       Posible tecnica utilizada por el ransomware MAZE" + "\n")
                             f.close()
                         except:
                             cuadro_dialogo_ftp()
@@ -267,11 +276,40 @@ def extraer_informacion(paquete):
                     else:
                         ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
                         f = open("logsRansowmare.txt", "a")
-                        f.write("Se ha bloqueado la transferencia FTP del fichero " + ubicacionDelEjecutable +" por medio de la herramienta '" + herramientaUtilizada + "' \n")
-                        f.write("   Posible tecnica utilizada por el ransomware REvil" + "\n")
+                        now = datetime.now()
+                        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+                        f.write(dt_string + "\n")
+                        f.write("   Se ha bloqueado la transferencia FTP del fichero " + ubicacionDelEjecutable +" por medio de la herramienta '" + herramientaUtilizada + "' \n")
+                        f.write("       Posible tecnica utilizada por el ransomware MAZE" + "\n")
                         f.close()
 
                     entradaMegaSync = 0
+
+                #Si no se ha realizado un proceso de compresión previo elimino las reglas en el firewall
+                else:
+                    #Elimino la regla en el firewall
+                    remove_rule("ftp_blocker")
+
+                    #Ha habido un falso positivo
+                    #Solicito al cliente que vuelva a introducir los datos del servidor ftp para que la conexión se lleve a cabo
+                    #Recupero los datos del cliente en el servidor ftp
+                    cuadro_dialogo_ftp()
+                    direccionServidor = listaFTP[0]
+                    nombreUsuario = listaFTP[1]
+                    contraseñaUsuario = listaFTP[2]
+
+                    #Establezco una nueva conexión ftp con el servidor
+                    try:
+                        establecer_conexion_servidor_FTP(direccionServidor, nombreUsuario, contraseñaUsuario, ubicacionDelEjecutable)
+                        f = open("logsRansowmare.txt", "a")
+                        now = datetime.now()
+                        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+                        f.write(dt_string + "\n")
+                        f.write("   Se ha permitido la transferencia FTP al servidor '" + direccionServidor + "' \n")
+                        f.write("       Ha habido un falso positivo a causa del ransomware MAZE" + "\n")
+                        f.close()
+                    except:
+                        cuadro_dialogo_ftp()
 
             #Termina la ejecución del programa
             sys.exit()
@@ -289,7 +327,6 @@ def extraer_informacion(paquete):
             hayCoincidencia = procesar_direcciones_ip(ip_dst)
 
             if (hayCoincidencia == True):
-                print("entra")
 
                 #Calculo el timestamp actual
                 tiempoDeteccionIP = time.time()
@@ -368,32 +405,38 @@ def alertar_usuario(command, identificator, ubication, nombreServicio):
 
             #Guardo la alerta en un registro para futuros logs
             f = open("logsRansowmare.txt", "a")
-            f.write("Se ha permitido el comando '" + command + "' sobre un servidor de " + identificator + "\n")
+            now = datetime.now()
+            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+            f.write(dt_string + "\n")
+            f.write("   Se ha permitido el comando '" + command + "' sobre un servidor de " + identificator + "\n")
             #Comprobar si ha habido un proceso de compresión
             with open('procesoCompresion.txt') as pc:
                 first_line = pc.readline()
             pc.close()
             print(first_line)
             if (first_line=="7z"):
-                f.write("   Posible tecnica utilizada por el ransomware Darkside" + "\n")
+                f.write("       Posible tecnica utilizada por el ransomware Darkside" + "\n")
             else:
-                f.write("   Posible tecnica utilizada por el ransomware Conti" + "\n")
+                f.write("       Posible tecnica utilizada por el ransomware Conti" + "\n")
             f.close()
 
         #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
         else:
             ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
             f = open("logsRansowmare.txt", "a")
-            f.write("Se ha bloqueado el comando '" + command + "' sobre un servidor de " + identificator + "\n")
+            now = datetime.now()
+            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+            f.write(dt_string + "\n")
+            f.write("   Se ha bloqueado el comando '" + command + "' sobre un servidor de " + identificator + "\n")
             #Comprobar si ha habido un proceso de compresión
             #Comprobar si ha habido un proceso de compresión
             with open('procesoCompresion.txt') as pc:
                 first_line = pc.readline()
             pc.close()
             if (first_line=="7z"):
-                f.write("   Posible tecnica utilizada por el ransomware Darkside" + "\n")
+                f.write("       Posible tecnica utilizada por el ransomware Darkside" + "\n")
             else:
-                f.write("   Posible tecnica utilizada por el ransomware Conti" + "\n")
+                f.write("       Posible tecnica utilizada por el ransomware Conti" + "\n")
             f.close()
 
     elif (identificator =="dropbox"):
@@ -404,16 +447,22 @@ def alertar_usuario(command, identificator, ubication, nombreServicio):
 
             #Guardo la alerta en un registro para futuros logs
             f = open("logsRansowmare.txt", "a")
-            f.write("" + "Se ha permitido el comando '" + command + "' sobre un servidor de " + identificator + "\n")
-            f.write("   Posible tecnica utilizada por el ransomware Revil" + "\n")
+            now = datetime.now()
+            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+            f.write(dt_string + "\n")
+            f.write("   Se ha permitido el comando '" + command + "' sobre un servidor de " + identificator + "\n")
+            f.write("       Posible tecnica utilizada por el ransomware Revil" + "\n")
             f.close()
 
         #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
         else:
             ctypes.windll.user32.MessageBoxW(0, "Transferencia bloqueada", "Confirmación", 0)
             f = open("logsRansowmare.txt", "a")
-            f.write("Se ha bloqueado el comando '" + command + "' sobre un servidor de " + identificator + "\n")
-            f.write("   Posible tecnica utilizada por el ransomwares Revil" + "\n")
+            now = datetime.now()
+            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+            f.write(dt_string + "\n")
+            f.write("   Se ha bloqueado el comando '" + command + "' sobre un servidor de " + identificator + "\n")
+            f.write("       Posible tecnica utilizada por el ransomwares Revil" + "\n")
             f.close()
 
     elif (identificator == "pcloud"):
@@ -424,7 +473,10 @@ def alertar_usuario(command, identificator, ubication, nombreServicio):
 
             #Guardo la alerta en un registro para futuros logs
             f = open("logsRansowmare.txt", "a")
-            f.write("" + "Se ha permitido el comando '" + command + "' sobre un servidor de " + identificator + "\n")
+            now = datetime.now()
+            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+            f.write(dt_string + "\n")
+            f.write("  Se ha permitido el comando '" + command + "' sobre un servidor de " + identificator + "\n")
             f.close()
 
         #En caso de que no haya sido ejecutado por él, se deja la regla del firewall
@@ -437,21 +489,24 @@ def alertar_usuario(command, identificator, ubication, nombreServicio):
 def cuadro_alerta_megaSync(ubi, nombreServicio):
     ctypes.windll.user32.MessageBoxW(None, "Se ha transferido el fichero: " + ubi + " a través de " + nombreServicio + " , ten cuidado porque se puede estar provocando una fuga de información", "!!!ATENCIÓN!!!", 1)
     f = open("logsRansowmare.txt", "a")
-    f.write("Se ha transferido el fichero: " + ubi + " a través de " + nombreServicio + "\n")
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+    f.write(dt_string + "\n")
+    f.write("   Se ha transferido el fichero: " + ubi + " a través de " + nombreServicio + "\n")
     #Comprobar si ha habido un proceso de compresión
     with open('procesoCompresion.txt') as pc:
         first_line = pc.readline()
     pc.close()
     if (first_line=="rar"):
-        f.write("   Posible tecnica utilizada por el ransomware Babuk" + "\n")
-        f.write("   Posible tecnica utilizada por el ransomware REvil" + "\n")
-        f.write("   Posible tecnica utilizada por el ransomware Avaddon" + "\n")
+        f.write("       Posible tecnica utilizada por el ransomware Babuk" + "\n")
+        f.write("       Posible tecnica utilizada por el ransomware REvil" + "\n")
+        f.write("       Posible tecnica utilizada por el ransomware Avaddon" + "\n")
     elif (first_line=="7z"):
-        f.write("   Posible tecnica utilizada por el ransomware Darkside" + "\n")
-        f.write("   Posible tecnica utilizada por el ransomware Nemty" + "\n")
-        f.write("   Posible tecnica utilizada por el ransomware REvil" + "\n")
+        f.write("       Posible tecnica utilizada por el ransomware Darkside" + "\n")
+        f.write("       Posible tecnica utilizada por el ransomware Nemty" + "\n")
+        f.write("       Posible tecnica utilizada por el ransomware REvil" + "\n")
     else:
-        f.write("   Posible tecnica utilizada por el ransomware REvil" + "\n")
+        f.write("       Posible tecnica utilizada por el ransomware REvil" + "\n")
         
     f.close()
 

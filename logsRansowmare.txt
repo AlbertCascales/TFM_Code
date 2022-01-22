@@ -1,10 +1,65 @@
-Se ha transferido el fichero: C:\Users\marti\Downloads\AirzonecloudDaikin-HomeAssistant-master.zip a trav�s de MegaSync
-   Posible tecnica utilizada por el ransomware REvil
-Se ha transferido el fichero: C:\Users\marti\Downloads\AirzonecloudDaikin-HomeAssistant-master.zip a trav�s de MegaSync
-   Posible tecnica utilizada por el ransomware REvil
-Se ha transferido el fichero: C:\Users\marti\Downloads\rclone-v1.56.0-windows-amd64\rclone-v1.56.0-windows-amd64\rclone.7z a trav�s de MegaSync
-   Posible tecnica utilizada por el ransomware REvil
-Se ha transferido el fichero: C:\Users\marti\Downloads\rclone-v1.56.0-windows-amd64\rclone-v1.56.0-windows-amd64\rclone.7z a trav�s de MegaSync
-   Posible tecnica utilizada por el ransomware Darkside
-   Posible tecnica utilizada por el ransomware Nemty
-   Posible tecnica utilizada por el ransomware REvil
+22/01/2022 17:18:10
+   Se ha permitido el comando 'rclone.exe  copy README.rar remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Conti
+22/01/2022 17:21:28
+   Se ha bloqueado el comando 'rclone.exe  copy README.rar remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Conti
+22/01/2022 17:22:28
+   Se ha bloqueado el comando 'rclone.exe  copy fichero.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Conti
+22/01/2022 17:24:18
+   Se ha permitido el comando 'rclone.exe  copy fichero.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+22/01/2022 17:30:36
+   Se ha bloqueado el comando 'rclone.exe  copy fichero.7z remoteDropbox:' sobre un servidor de dropbox
+       Posible tecnica utilizada por el ransomwares Revil
+22/01/2022 17:31:25
+   Se ha permitido el comando 'rclone.exe  copy fichero.7z remoteDropbox:' sobre un servidor de dropbox
+       Posible tecnica utilizada por el ransomware Revil
+22/01/2022 17:52:43
+   Se ha transferido el fichero: C:\Users\marti\Downloads\AirzonecloudDaikin-HomeAssistant-master.zip a trav�s de MegaSync
+       Posible tecnica utilizada por el ransomware REvil
+22/01/2022 17:53:38
+   Se ha transferido el fichero: C:\Users\marti\Downloads\AirzonecloudDaikin-HomeAssistant-master.zip a trav�s de MegaSync
+       Posible tecnica utilizada por el ransomware REvil
+22/01/2022 17:54:49
+   Se ha transferido el fichero: C:\Users\marti\Downloads\AirzonecloudDaikin-HomeAssistant-master.zip a trav�s de MegaSync
+       Posible tecnica utilizada por el ransomware REvil
+22/01/2022 17:55:55
+   Se ha transferido el fichero: C:\Users\marti\Downloads\rclone-v1.56.0-windows-amd64\rclone-v1.56.0-windows-amd64\README.rar a trav�s de MegaSync
+       Posible tecnica utilizada por el ransomware REvil
+22/01/2022 17:56:55
+   Se ha transferido el fichero: C:\Users\marti\Downloads\ChameleonMini-rebooted-master.zip a trav�s de MegaSync
+       Posible tecnica utilizada por el ransomware Darkside
+       Posible tecnica utilizada por el ransomware Nemty
+       Posible tecnica utilizada por el ransomware REvil
+22/01/2022 17:58:40
+   Se ha transferido el fichero: C:\Users\marti\Downloads\rclone-v1.56.0-windows-amd64\rclone-v1.56.0-windows-amd64\fichero.7z a trav�s de MegaSync
+       Posible tecnica utilizada por el ransomware Darkside
+       Posible tecnica utilizada por el ransomware Nemty
+       Posible tecnica utilizada por el ransomware REvil
+22/01/2022 17:59:31
+   Se ha transferido el fichero: C:\Users\marti\Downloads\rclone-v1.56.0-windows-amd64\rclone-v1.56.0-windows-amd64\fichero.7z a trav�s de MegaSync
+       Posible tecnica utilizada por el ransomware Darkside
+       Posible tecnica utilizada por el ransomware Nemty
+       Posible tecnica utilizada por el ransomware REvil
+22/01/2022 18:00:49
+   Se ha transferido el fichero: C:\Users\marti\Downloads\rclone-v1.56.0-windows-amd64\rclone-v1.56.0-windows-amd64\fichero.7z a trav�s de MegaSync
+       Posible tecnica utilizada por el ransomware Darkside
+       Posible tecnica utilizada por el ransomware Nemty
+       Posible tecnica utilizada por el ransomware REvil
+22/01/2022 18:01:39
+   Se ha transferido el fichero: C:\Users\marti\Downloads\rclone-v1.56.0-windows-amd64\rclone-v1.56.0-windows-amd64\README.rar a trav�s de MegaSync
+       Posible tecnica utilizada por el ransomware Darkside
+       Posible tecnica utilizada por el ransomware Nemty
+       Posible tecnica utilizada por el ransomware REvil
+22/01/2022 18:02:43
+   Se ha transferido el fichero: C:\Users\marti\Downloads\rclone-v1.56.0-windows-amd64\rclone-v1.56.0-windows-amd64\README.rar a trav�s de MegaSync
+       Posible tecnica utilizada por el ransomware Babuk
+       Posible tecnica utilizada por el ransomware REvil
+       Posible tecnica utilizada por el ransomware Avaddon
+22/01/2022 18:03:47
+   Se ha transferido el fichero: C:\Users\marti\Downloads\ChameleonMini-rebooted-master.zip a trav�s de MegaSync
+       Posible tecnica utilizada por el ransomware Babuk
+       Posible tecnica utilizada por el ransomware REvil
+       Posible tecnica utilizada por el ransomware Avaddon

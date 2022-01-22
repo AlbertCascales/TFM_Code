@@ -34,7 +34,7 @@ def procesar_pml(variable):
                 path = row[4]
 
                 #Devuelvo el tipo de herramienta utilizada y el fichero que se ha intentado transmitir
-                if ("filezilla.exe" in nombre and (".zip" in path or ".rar" in path)):
+                if ("filezilla.exe" in nombre and (".7z" in path or ".zip" in path or ".rar" in path)):
                     return "filezilla" + " " + path
                 elif ("WinSCP.exe" in nombre and (".7z" in path)):
                     return "winscp" + " " + path

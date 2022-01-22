@@ -6,7 +6,6 @@ from subprocess import DEVNULL
 def remove_rule(rule_name):
     """ Add rule to Windows Firewall """
     subprocess.call(
-        #f"netsh advfirewall firewall delete rule name={rule_name} | findstr /R '_blocker'"
         f"netsh advfirewall firewall delete rule name={rule_name}", 
         shell=True,
         stdout=DEVNULL, 
