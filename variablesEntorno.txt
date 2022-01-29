@@ -1,0 +1,8 @@
+rclone: C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe
+fileZilla: C:\\Users\\marti\\Downloads\\filezilla\\FileZillaFTPClient\\filezilla.exe
+WinSCP: C:\\Users\\marti\\Downloads\\WinSCP\\WinSCP.exe
+direccionesMega: C:\\Users\\marti\\Documents\\UC3M\\Master Ingeniería Informática\\Segundo Curso\\Primer Cuatrimestre\\TFM\TFM_Code\\direccionesIPMega.txt
+salida.csv: C:\\Users\\marti\\Downloads\\ProcessMonitor\\salida.csv
+startProcessMonitor: cd C:\\Users\\marti\\Downloads\\ProcessMonitor & Procmon.exe /AcceptEula /NoFilter /Minimized /BackingFile salida
+stopProcessMonitor: cd C:\\Users\\marti\\Downloads\\ProcessMonitor & Procmon.exe /Terminate
+processMonitorToCSV: cd C:\\Users\\marti\\Downloads\\ProcessMonitor & Procmon.exe salida.PML /SaveAs salida.csv

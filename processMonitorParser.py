@@ -1,10 +1,13 @@
 from csv import reader
 from scapy.config import CommandsList
 
+ficheroCSVPath="C:\\Users\\marti\\Downloads\\ProcessMonitor\\salida.csv"
+
 #Procesamiento del fichero csv generado por Process Monitor
 def procesar_pml(variable):
     #Abro el fichero en modo lectura
-    with open('C:\\Users\\marti\\Downloads\\ProcessMonitor\\salida.csv', 'r', encoding="utf8") as read_obj:
+    with open(ficheroCSVPath, 'r', encoding="utf8") as read_obj:
+    #with open('C:\\Users\\marti\\Downloads\\ProcessMonitor\\salida.csv', 'r', encoding="utf8") as read_obj:
         #Obtengo el fichero como un objeto reader
         csv_reader = reader(read_obj)
         #Itero por cada una de las filas del fichero

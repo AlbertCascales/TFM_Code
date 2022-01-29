@@ -1,8 +1,12 @@
+from distutils import command
 import subprocess
+
+processMonitorCommand="cd C:\\Users\\marti\\Downloads\\ProcessMonitor & Procmon.exe /AcceptEula /NoFilter /Minimized /BackingFile salida"
 
 #Arranco la herramienta Process Monitor
 def start_process_monitor():
-    command = "cd C:\\Users\\marti\\Downloads\\ProcessMonitor & Procmon.exe /AcceptEula /NoFilter /Minimized /BackingFile salida"
+    command = processMonitorCommand
+    #command = "cd C:\\Users\\marti\\Downloads\\ProcessMonitor & Procmon.exe /AcceptEula /NoFilter /Minimized /BackingFile salida"
     subprocess.call(command, shell=True)
 
 

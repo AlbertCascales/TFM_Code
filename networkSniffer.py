@@ -34,9 +34,10 @@ variableGlobal = ""
 listaFTP = []
 listaTLS = []
 
-#procesoCompresion = ""
-
-
+rclonePath="C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe"
+fileZillaPath="C:\\Users\\marti\\Downloads\\filezilla\\FileZillaFTPClient\\filezilla.exe"
+winSCPPath="C:\\Users\\marti\\Downloads\\WinSCP\\WinSCP.exe"
+direccionesIPMegaPath="C:\\Users\\marti\\Documents\\UC3M\\Master Ingeniería Informática\\Segundo Curso\\Primer Cuatrimestre\\TFM\TFM_Code\\direccionesIPMega.txt"
 
 #Función que define la interfaz del adaptador de red que se monitoriza
 def definir_interfaz(iface=None):
@@ -73,7 +74,20 @@ def extraer_informacion(paquete):
             nombre_regla = servicio + "_blocker"
 
             #Añado la regla a la lista del firewall
-            add_rule("mega_blocker", "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
+            """
+            ve=open('variablesEntorno.txt')
+            line=ve.readlines()
+            rclonePath = line[0]
+            rclonePath = rclonePath[rclonePath.find(' '):]
+            rclonePath=rclonePath[1:]
+            #print (rclonePath)
+            ve.close()
+            """
+
+            add_rule("mega_blocker", rclonePath)
+        
+
+            #add_rule("mega_blocker", "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
 
             #Paro la captura de eventos por parte de Process Monitor
             stop_process_monitor()
@@ -121,7 +135,8 @@ def extraer_informacion(paquete):
 
 
                             #Bloqueo el tráfico
-                            add_rule("dropbox_blocker", "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
+                            add_rule("dropbox_blocker", rclonePath)
+                            #add_rule("dropbox_blocker", "C:\\Users\\marti\\Downloads\\rclone-v1.56.0-windows-amd64\\rclone-v1.56.0-windows-amd64\\rclone.exe")
 
                             #Paro la captura de eventos por parte de Process Monitor
                             stop_process_monitor()
@@ -183,8 +198,10 @@ def extraer_informacion(paquete):
             nombre_regla = "ftp_blocker"
 
             #Añado la regla a la lista del firewall
-            add_rule(nombre_regla, "C:\\Users\\marti\\Downloads\\filezilla\\FileZillaFTPClient\\filezilla.exe")
-            add_rule(nombre_regla, "C:\\Users\\marti\\Downloads\\WinSCP\\WinSCP.exe")
+            add_rule(nombre_regla, fileZillaPath)
+            #add_rule(nombre_regla, "C:\\Users\\marti\\Downloads\\filezilla\\FileZillaFTPClient\\filezilla.exe")
+            add_rule(nombre_regla, winSCPPath)
+            #add_rule(nombre_regla, "C:\\Users\\marti\\Downloads\\WinSCP\\WinSCP.exe")
 
 
             #Paro la captura de eventos por parte de Process Monitor
@@ -355,7 +372,8 @@ def extraer_informacion(paquete):
 
 def procesar_direcciones_ip(direccionIPDestino):
     #Leo el fichero con las direcciones IP de los servidores de mega
-    with open("C:\\Users\\marti\\Documents\\UC3M\\Master Ingeniería Informática\\Segundo Curso\\Primer Cuatrimestre\\TFM\TFM_Code\\direccionesIPMega.txt") as file:
+    with open(direccionesIPMegaPath) as file:
+    #with open("C:\\Users\\marti\\Documents\\UC3M\\Master Ingeniería Informática\\Segundo Curso\\Primer Cuatrimestre\\TFM\TFM_Code\\direccionesIPMega.txt") as file:
         while (line := file.readline().rstrip()):
             #Obtengo la dirección IP con su máscara
             direccionIP = ipaddr.IPv4Network(line)

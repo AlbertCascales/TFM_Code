@@ -63,3 +63,60 @@
        Posible tecnica utilizada por el ransomware Babuk
        Posible tecnica utilizada por el ransomware REvil
        Posible tecnica utilizada por el ransomware Avaddon
+27/01/2022 18:34:07
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+27/01/2022 18:39:09
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+27/01/2022 18:40:25
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+27/01/2022 18:41:24
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+27/01/2022 18:42:20
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+29/01/2022 16:27:41
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+29/01/2022 16:28:59
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+29/01/2022 16:32:15
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+29/01/2022 16:33:13
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+29/01/2022 16:34:06
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+29/01/2022 16:36:43
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+29/01/2022 16:37:20
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+29/01/2022 16:39:37
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+29/01/2022 16:40:36
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+29/01/2022 16:41:55
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+29/01/2022 16:42:31
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+29/01/2022 16:43:31
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+29/01/2022 16:44:25
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
+29/01/2022 16:53:28
+   Se ha bloqueado el comando 'rclone.exe  copy compression.7z remote:' sobre un servidor de mega
+       Posible tecnica utilizada por el ransomware Darkside
