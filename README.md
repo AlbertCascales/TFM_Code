@@ -19,5 +19,7 @@ El modo de funcionamiento básico del programa es el siguiente:
 # Modo de ejecución
 
 Para ejecutar el fichero que analiza los procesos de compresión, el comando es: python check_procesoCompresion.py
+
 Para iniciar la monitorización a nivel de host, el comando utilizado es: python startProcessMonitor.py
+
 Para iniciar la monitorización a nivel de red, el comando empleado es: python networkSniffer.py -i Wi-Fi
